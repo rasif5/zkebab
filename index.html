@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-lang-key="title">Zafer Kebab - Katowice</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@800;900&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Custom Styles -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .font-poppins {
+            font-family: 'Poppins', sans-serif;
+        }
+        /* New Orange & White Theme */
+        .accent-color { color: #F97316; }
+        .bg-accent { background-color: #F97316; }
+        .border-accent { border-color: #F97316; }
+
+        .active-nav { color: #F97316; border-bottom: 2px solid #F97316; }
+        .inactive-nav { border-bottom: 2px solid transparent; }
+        
+        .page { display: none; }
+        .page.active { display: block; }
+        
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        
+        .modal-backdrop {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            overflow: hidden;
+            border: 8px solid #FDBA74; /* orange-300 */
+            transition: transform 5s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+        .wheel-slice {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            color: white;
+            padding-right: 40px;
+        }
+        .wheel-pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 30px solid #F97316; /* orange-500 */
+            z-index: 10;
+        }
+        
+        .stamp {
+            border: 2px dashed #D1D5DB; /* gray-300 */
+            color: #9CA3AF; /* gray-400 */
+        }
+        .stamp.earned {
+            background-color: #F97316;
+            border-style: solid;
+            color: white;
+        }
+        
+        .status-line {
+            background-color: #E5E7EB; /* gray-200 */
+            height: 4px;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            width: 100%;
+            z-index: 0;
+        }
+        .status-line-progress {
+            background-color: #F97316;
+            height: 100%;
+            transition: width 0.5s ease-in-out;
+        }
+        .status-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #E5E7EB; /* gray-200 */
+            border: 4px solid #FFFFFF;
+            z-index: 1;
+            transition: background-color 0.5s ease-in-out;
+        }
+        .status-dot.active {
+            background-color: #F97316;
+        }
+        .text-shadow {
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
+        }
+        /* Admin Panel Styles */
+        .admin-view { display: none; }
+        .admin-view.active { display: block; }
+        .admin-sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            transition: background-color 0.2s;
+        }
+        .admin-sidebar-link:hover {
+            background-color: #F3F4F6; /* gray-100 */
+        }
+        .admin-sidebar-link.active {
+            background-color: #FEF3C7; /* orange-100 */
+            color: #F97316; /* orange-500 */
+            font-weight: 600;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 24px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider {
+            background-color: #22C55E; /* green-500 */
+        }
+        input:checked + .slider:before {
+            transform: translateX(16px);
+        }
+    </style>
+</head>
+<body class="bg-white text-gray-700">
+
+    <div id="app-container" class="max-w-7xl mx-auto">
+
+        <!-- Header -->
+        <header class="sticky top-0 bg-white/80 backdrop-blur-lg z-50 border-b border-gray-200">
+            <nav class="flex items-center justify-between p-4">
+                <a href="#" onclick="showPage('home')" class="text-2xl font-extrabold accent-color">
+                    <span data-lang-key="restaurantName">Zafer Kebab</span>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <!-- Language Switcher -->
+                    <div class="flex items-center space-x-2 text-sm">
+                        <button onclick="changeLanguage('pl')" class="lang-btn" data-lang="pl">🇵🇱</button>
+                        <button onclick="changeLanguage('en')" class="lang-btn" data-lang="en">🇬🇧</button>
+                        <button onclick="changeLanguage('ru')" class="lang-btn" data-lang="ru">🇷🇺</button>
+                    </div>
+                    <!-- Cart Icon -->
+                    <a href="#" onclick="showPage('cart')" class="relative text-gray-600 hover:text-orange-500">
+                        <i data-lucide="shopping-cart" class="w-6 h-6"></i>
+                        <span id="cart-item-count" class="absolute -top-2 -right-2 bg-accent text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">0</span>
+                    </a>
+                    <!-- Mobile Menu Toggle -->
+                    <button id="mobile-menu-button" class="md:hidden text-gray-600">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+            </nav>
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex justify-center items-center space-x-6 py-2 text-sm font-medium text-gray-500">
+                <a href="#" class="nav-link" data-page="home" onclick="showPage('home')" data-lang-key="navHome">Home</a>
+                <a href="#" class="nav-link" data-page="menu" onclick="showPage('menu')" data-lang-key="navMenu">Menu</a>
+                <a href="#" class="nav-link" data-page="order" onclick="showPage('order')" data-lang-key="navOrder">Order Online</a>
+                <a href="#" class="nav-link" data-page="reservation" onclick="showPage('reservation')" data-lang-key="navReservation">Reservation</a>
+                <a href="#" class="nav-link" data-page="loyalty" onclick="showPage('loyalty')" data-lang-key="navLoyalty">Loyalty</a>
+                <a href="#" class="nav-link" data-page="contact" onclick="showPage('contact')" data-lang-key="navContact">Contact</a>
+                <a href="#" class="nav-link" data-page="login" onclick="showPage('login')">
+                    <i data-lucide="user-circle" class="w-5 h-5"></i>
+                </a>
+            </div>
+            <!-- Mobile Navigation -->
+            <div id="mobile-menu" class="hidden md:hidden flex-col items-center space-y-4 py-4 border-t border-gray-200">
+                <a href="#" class="nav-link" data-page="home" onclick="showPage('home'); toggleMobileMenu();" data-lang-key="navHome">Home</a>
+                <a href="#" class="nav-link" data-page="menu" onclick="showPage('menu'); toggleMobileMenu();" data-lang-key="navMenu">Menu</a>
+                <a href="#" class="nav-link" data-page="order" onclick="showPage('order'); toggleMobileMenu();" data-lang-key="navOrder">Order Online</a>
+                <a href="#" class="nav-link" data-page="reservation" onclick="showPage('reservation'); toggleMobileMenu();" data-lang-key="navReservation">Reservation</a>
+                <a href="#" class="nav-link" data-page="loyalty" onclick="showPage('loyalty'); toggleMobileMenu();" data-lang-key="navLoyalty">Loyalty</a>
+                <a href="#" class="nav-link" data-page="contact" onclick="showPage('contact'); toggleMobileMenu();" data-lang-key="navContact">Contact</a>
+                <a href="#" class="nav-link" data-page="login" onclick="showPage('login'); toggleMobileMenu();" data-lang-key="navLogin">Login/Profile</a>
+            </div>
+        </header>
+
+        <main class="p-4 md:p-6">
+
+            <!-- Home Page -->
+            <div id="home-page" class="page">
+                <!-- Welcome Banner -->
+                <div class="rounded-xl shadow-lg overflow-hidden mb-8">
+                    <div class="h-80 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1624321922993-99734d46c118?q=80&w=1935&auto=format&fit=crop')">
+                        <div class="h-full bg-black bg-opacity-60 flex flex-col justify-center items-center text-center p-4">
+                            <h1 class="font-poppins text-4xl md:text-6xl font-black text-white text-shadow uppercase tracking-wider" data-lang-key="welcomeTitle">Welcome to Zafer Kebab!</h1>
+                            <p id="offer-banner" class="mt-4 text-lg md:text-xl text-gray-200 transition-opacity duration-500 text-shadow"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center mb-8">
+                    <div onclick="showPage('menu')" class="bg-gray-50 p-6 rounded-xl shadow-md hover:bg-gray-100 transition-colors duration-300 cursor-pointer">
+                        <h3 class="text-xl font-bold accent-color" data-lang-key="quickLinkMenu">Our Menu</h3>
+                        <p class="text-gray-500 mt-2" data-lang-key="quickLinkMenuDesc">Explore delicious kebabs and more.</p>
+                    </div>
+                    <div onclick="showPage('order')" class="bg-accent p-6 rounded-xl shadow-md hover:bg-orange-600 transition-colors duration-300 cursor-pointer text-white">
+                        <h3 class="text-xl font-bold" data-lang-key="quickLinkOrder">Order Now</h3>
+                        <p class="text-orange-100 mt-2" data-lang-key="quickLinkOrderDesc">Pickup or fast delivery.</p>
+                    </div>
+                    <div onclick="showPage('reservation')" class="bg-gray-50 p-6 rounded-xl shadow-md hover:bg-gray-100 transition-colors duration-300 cursor-pointer">
+                        <h3 class="text-xl font-bold accent-color" data-lang-key="quickLinkReservation">Book a Table</h3>
+                        <p class="text-gray-500 mt-2" data-lang-key="quickLinkReservationDesc">Reserve your spot for a great time.</p>
+                    </div>
+                </div>
+
+                <!-- Social Media Teaser -->
+                <div class="text-center bg-gray-50 p-6 rounded-xl">
+                    <h3 class="text-2xl font-bold mb-4" data-lang-key="socialTitle">Follow Us!</h3>
+                    <p class="text-gray-500 mb-6" data-lang-key="socialDesc">Stay updated with our latest news and promotions on social media.</p>
+                    <div class="flex justify-center space-x-6">
+                        <a href="#" class="text-gray-500 hover:text-orange-500 transition-colors duration-300"><i data-lucide="facebook" class="w-8 h-8"></i></a>
+                        <a href="#" class="text-gray-500 hover:text-orange-500 transition-colors duration-300"><i data-lucide="instagram" class="w-8 h-8"></i></a>
+                        <a href="#" class="text-gray-500 hover:text-orange-500 transition-colors duration-300"><i data-lucide="twitter" class="w-8 h-8"></i></a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu Page -->
+            <div id="menu-page" class="page">
+                <h2 class="text-3xl font-bold text-center mb-8 accent-color" data-lang-key="menuTitle">Our Menu</h2>
+                <!-- Tabs -->
+                <div class="mb-6 border-b border-gray-200">
+                    <nav class="flex flex-wrap justify-center -mb-px space-x-6" aria-label="Tabs">
+                        <button class="menu-tab-btn py-3 px-1 text-gray-500" data-tab="mains" data-lang-key="menuMains">Mains</button>
+                        <button class="menu-tab-btn py-3 px-1 text-gray-500" data-tab="fast_food" data-lang-key="menuFastFood">Fast Food</button>
+                        <button class="menu-tab-btn py-3 px-1 text-gray-500" data-tab="starters" data-lang-key="menuStarters">Starters</button>
+                        <button class="menu-tab-btn py-3 px-1 text-gray-500" data-tab="extras" data-lang-key="menuExtras">Extras</button>
+                        <button class="menu-tab-btn py-3 px-1 text-gray-500" data-tab="drinks" data-lang-key="menuDrinks">Drinks</button>
+                    </nav>
+                </div>
+
+                <!-- Tab Content -->
+                <div id="menu-content">
+                    <div id="mains-tab" class="tab-content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    <div id="fast_food-tab" class="tab-content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    <div id="starters-tab" class="tab-content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    <div id="extras-tab" class="tab-content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                    <div id="drinks-tab" class="tab-content grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+                </div>
+            </div>
+            
+            <!-- Order Page -->
+            <div id="order-page" class="page">
+                <h2 class="text-3xl font-bold text-center mb-8 accent-color" data-lang-key="orderTitle">Your Order Details</h2>
+                
+                <div id="order-form-container" class="max-w-2xl mx-auto bg-gray-50 p-6 rounded-xl shadow-lg">
+                    <!-- Order Type Toggle -->
+                    <div class="flex justify-center bg-gray-200 rounded-full p-1 mb-6">
+                        <button id="pickup-btn" class="w-1/2 py-2 rounded-full transition-colors duration-300" data-lang-key="orderPickup">Pickup</button>
+                        <button id="delivery-btn" class="w-1/2 py-2 rounded-full transition-colors duration-300" data-lang-key="orderDelivery">Delivery</button>
+                    </div>
+
+                    <!-- Schedule Time -->
+                    <div class="mb-6">
+                        <label for="schedule-time" class="block text-sm font-medium text-gray-600 mb-2" data-lang-key="orderScheduleTime">Schedule Time</label>
+                        <select id="schedule-time" class="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-accent focus:outline-none">
+                            <option data-lang-key="orderAsap">As Soon As Possible</option>
+                            <option>18:00</option>
+                            <option>18:30</option>
+                            <option>19:00</option>
+                        </select>
+                    </div>
+
+                    <!-- Delivery Details Form -->
+                    <div id="delivery-details-form" class="hidden space-y-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="delivery-name" class="block text-sm font-medium text-gray-600 mb-1" data-lang-key="formName">Name</label>
+                                <input type="text" id="delivery-name" class="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-accent focus:outline-none">
+                            </div>
+                            <div>
+                                <label for="delivery-surname" class="block text-sm font-medium text-gray-600 mb-1" data-lang-key="formSurname">Surname</label>
+                                <input type="text" id="delivery-surname" class="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-accent focus:outline-none">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="delivery-phone" class="block text-sm font-medium text-gray-600 mb-1" data-lang-key="formPhone">Phone Number</label>
+                            <input type="tel" id="delivery-phone" class="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-accent focus:outline-none">
+                        </div>
+                        <div>
+                            <label for="delivery-address" class="block text-sm font-medium text-gray-600 mb-1" data-lang-key="orderDeliveryAddress">Delivery Address</label>
+                            <input type="text" id="delivery-address" class="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-accent focus:outline-none" placeholder="ul. Rolna 63, Katowice">
+                        </div>
+                        <div>
+                            <label for="delivery-cash" class="block text-sm font-medium text-gray-600 mb-1" data-lang-key="formCash">Cash Amount</label>
+                            <input type="number" id="delivery-cash" class="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-accent focus:outline-none" placeholder="e.g., 50">
+                            <p class="text-xs text-gray-500 mt-1" data-lang-key="formCashHelp">Amount you will pay with, for change calculation. Must be >= order total.</p>
+                        </div>
+                        <div>
+                            <label for="delivery-comments" class="block text-sm font-medium text-gray-600 mb-1" data-lang-key="formComments">Additional Comments</label>
+                            <textarea id="delivery-comments" rows="3" class="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-accent focus:outline-none" data-lang-key="formCommentsPlaceholder" placeholder="e.g., building code, floor, no spicy sauce..."></textarea>
+                        </div>
+                    </div>
+
+                    <div id="order-error-message" class="hidden my-4 p-3 bg-red-100 text-red-700 border border-red-300 rounded-lg"></div>
+
+                    <button onclick="placeOrder()" class="mt-6 w-full bg-accent hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300" data-lang-key="orderPlace">Place Order</button>
+                </div>
+                
+                <!-- Kitchen Status Tracker -->
+                <div id="kitchen-status-tracker" class="hidden max-w-2xl mx-auto mt-6">
+                     <h3 class="text-xl font-semibold text-center mb-6" data-lang-key="orderStatusTitle">Your Order Status</h3>
+                     <div class="relative w-full">
+                         <div class="status-line"><div id="status-line-progress" class="status-line-progress"></div></div>
+                         <div class="flex justify-between items-center relative">
+                             <div class="flex flex-col items-center text-center">
+                                 <div id="status-dot-1" class="status-dot"></div>
+                                 <p class="text-xs mt-2" data-lang-key="statusReceived">Order Received</p>
+                             </div>
+                             <div class="flex flex-col items-center text-center">
+                                 <div id="status-dot-2" class="status-dot"></div>
+                                 <p class="text-xs mt-2" data-lang-key="statusCooking">Cooking</p>
+                             </div>
+                             <div class="flex flex-col items-center text-center">
+                                 <div id="status-dot-3" class="status-dot"></div>
+                                 <p class="text-xs mt-2" data-lang-key="statusPackaging">Packaging</p>
+                             </div>
+                             <div class="flex flex-col items-center text-center">
+                                 <div id="status-dot-4" class="status-dot"></div>
+                                 <p class="text-xs mt-2" data-lang-key="statusReady">Ready</p>
+                             </div>
+                         </div>
+                     </div>
+                </div>
+
+            </div>
+
+            <!-- Cart & Checkout Page -->
+            <div id="cart-page" class="page">
+                 <h2 class="text-3xl font-bold text-center mb-8 accent-color" data-lang-key="cartTitle">Your Cart</h2>
+                 <div id="cart-container" class="max-w-3xl mx-auto">
+                    <div id="cart-items" class="space-y-4">
+                        <!-- Cart items OR empty message will be injected here by JS -->
+                    </div>
+                    
+                    <div id="cart-summary-section" class="hidden mt-8 bg-gray-50 p-6 rounded-xl shadow-lg">
+                        <div class="space-y-2 border-b border-gray-200 pb-4 mb-4">
+                            <div class="flex justify-between">
+                                <span data-lang-key="cartSubtotal">Subtotal</span>
+                                <span id="cart-subtotal">0.00 PLN</span>
+                            </div>
+                             <div class="flex justify-between text-gray-500">
+                                <span data-lang-key="cartDeliveryFee">Delivery Fee</span>
+                                <span id="cart-delivery-fee">0.00 PLN</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between font-bold text-xl mb-6">
+                            <span data-lang-key="cartTotal">Total</span>
+                            <span id="cart-total">0.00 PLN</span>
+                        </div>
+                        
+                        <!-- Promo Code -->
+                        <div class="flex space-x-2 mb-6">
+                            <input type="text" id="promo-code" placeholder="Promo Code" class="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-accent focus:outline-none" data-lang-key="cartPromoPlaceholder">
+                            <button class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg transition-colors" data-lang-key="cartApply">Apply</button>
+                        </div>
+
+                        <!-- Payment Options -->
+                        <div class="space-y-3 mb-4">
+                            <button onclick="showPage('order')" class="w-full bg-accent hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg" data-lang-key="cartCheckout">Proceed to Checkout</button>
+                        </div>
+                        <p class="text-xs text-gray-500 text-center" data-lang-key="cartEstimatedTime">Estimated delivery time: 30-45 minutes</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reservation Page -->
+            <div id="reservation-page" class="page">
+                <h2 class="text-3xl font-bold text-center mb-8 accent-color" data-lang-key="reservationTitle">Book Your Table</h2>
+                <div class="max-w-md mx-auto bg-gray-50 p-6 rounded-xl shadow-lg">
+                    <form id="reservation-form">
+                        <div class="mb-4">
+                            <label for="res-date" class="block text-sm font-medium text-gray-600 mb-2" data-lang-key="reservationDate">Date</label>
+                            <input type="date" id="res-date" class="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-accent focus:outline-none">
+                        </div>
+                        <div class="mb-4">
+                            <label for="res-time" class="block text-sm font-medium text-gray-600 mb-2" data-lang-key="reservationTime">Time</label>
+                            <input type="time" id="res-time" class="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-accent focus:outline-none">
+                        </div>
+                        <div class="mb-6">
+                            <label for="res-guests" class="block text-sm font-medium text-gray-600 mb-2" data-lang-key="reservationGuests">Number of Guests</label>
+                            <select id="res-guests" class="w-full bg-white border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-accent focus:outline-none">
+                                <option>1</option>
+                                <option>2</option>
+                                <option>3</option>
+                                <option>4</option>
+                                <option>5</option>
+                                <option>6+</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full bg-accent hover:bg-orange-600 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-300" data-lang-key="reservationConfirm">Confirm Reservation</button>
+                    </form>
+                </div>
+                <div id="reservation-confirmation" class="hidden text-center max-w-md mx-auto bg-green-50 border border-green-200 p-6 rounded-xl shadow-lg mt-6">
+                    <h3 class="text-2xl font-bold text-green-600 mb-4" data-lang-key="reservationSuccess">Reservation Confirmed!</h3>
+                    <p class="mb-4 text-green-800" data-lang-key="reservationSuccessDesc">We've sent a confirmation to your email. Show this QR code upon arrival.</p>
+                    <div class="flex justify-center">
+                        <img src="https://placehold.co/200x200/FFFFFF/000000?text=QR+CODE" alt="QR Code" class="rounded-lg">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loyalty & Rewards Page -->
+            <div id="loyalty-page" class="page">
+                <h2 class="text-3xl font-bold text-center mb-8 accent-color" data-lang-key="loyaltyTitle">Loyalty & Rewards</h2>
+                
+                <!-- Stamp Card -->
+                <div class="bg-gray-50 p-6 rounded-xl shadow-lg mb-8">
+                    <h3 class="text-xl font-bold mb-4" data-lang-key="loyaltyStampCard">Stamp Card</h3>
+                    <p class="text-gray-500 mb-6" data-lang-key="loyaltyStampDesc">Buy 5 meals, get 1 free!</p>
+                    <div class="grid grid-cols-6 gap-4">
+                        <div class="stamp earned flex items-center justify-center text-3xl"><i data-lucide="check" class="w-8 h-8"></i></div>
+                        <div class="stamp earned flex items-center justify-center text-3xl"><i data-lucide="check" class="w-8 h-8"></i></div>
+                        <div class="stamp earned flex items-center justify-center text-3xl"><i data-lucide="check" class="w-8 h-8"></i></div>
+                        <div class="stamp flex items-center justify-center">4</div>
+                        <div class="stamp flex items-center justify-center">5</div>
+                        <div class="stamp flex items-center justify-center"><i data-lucide="gift" class="w-8 h-8"></i></div>
+                    </div>
+                </div>
+
+                <!-- Points Bar -->
+                <div class="bg-gray-50 p-6 rounded-xl shadow-lg mb-8">
+                    <h3 class="text-xl font-bold mb-4" data-lang-key="loyaltyPoints">Your Loyalty Points</h3>
+                    <div class="flex justify-between text-sm text-gray-500 mb-2">
+                        <span>Silver</span>
+                        <span>Gold</span>
+                        <span>Platinum</span>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-4">
+                        <div class="bg-accent h-4 rounded-full" style="width: 45%"></div>
+                    </div>
+                    <p class="text-center mt-3 text-gray-600">450 / 1000 points to Gold</p>
+                </div>
+
+                <!-- Spin the Wheel -->
+                <div class="bg-gray-50 p-6 rounded-xl shadow-lg text-center">
+                    <h3 class="text-xl font-bold mb-4" data-lang-key="loyaltySpin">Spin to Win!</h3>
+                    <p class="text-gray-500 mb-6" data-lang-key="loyaltySpinDesc">Use 50 points to spin the wheel for a random discount!</p>
+                    <div class="flex justify-center items-center flex-col">
+                        <div class="relative mb-6">
+                            <div class="wheel-pointer"></div>
+                            <div id="wheel" class="wheel-container">
+                                <!-- Slices will be generated by JS -->
+                            </div>
+                        </div>
+                        <button id="spin-button" class="bg-accent hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300" data-lang-key="loyaltySpinBtn">Spin (50 pts)</button>
+                    </div>
+                </div>
+                
+                <!-- Referral Program Link -->
+                 <div class="mt-8 text-center">
+                    <a href="#" onclick="showPage('referral')" class="text-accent hover:text-orange-600 font-semibold" data-lang-key="loyaltyReferralLink">→ Invite friends and earn more rewards!</a>
+                </div>
+            </div>
+
+            <!-- Referral Page -->
+            <div id="referral-page" class="page">
+                <h2 class="text-3xl font-bold text-center mb-8 accent-color" data-lang-key="referralTitle">Refer a Friend</h2>
+                <div class="max-w-md mx-auto bg-gray-50 p-6 rounded-xl shadow-lg text-center">
+                    <p class="text-gray-600 mb-4" data-lang-key="referralDesc">Invite your friends to Zafer Kebab. When they make their first order, you both get a 15% discount coupon!</p>
+                    <div class="mb-6">
+                        <label for="referral-link" class="block text-sm font-medium text-gray-600 mb-2" data-lang-key="referralYourLink">Your personal referral link</label>
+                        <div class="flex">
+                            <input type="text" id="referral-link" value="https://zaferkebab.com/ref/USER123" readonly class="w-full bg-gray-200 border border-gray-300 rounded-l-lg p-3">
+                            <button onclick="copyReferralLink()" class="bg-accent text-white font-bold p-3 rounded-r-lg" data-lang-key="referralCopy">Copy</button>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="referral-email" class="block text-sm font-medium text-gray-600 mb-2" data-lang-key="referralInviteEmail">Or invite via email</label>
+                        <div class="flex">
+                            <input type="email" id="referral-email" placeholder="friend@example.com" class="w-full bg-white border border-gray-300 rounded-l-lg p-3 focus:ring-2 focus:ring-accent focus:outline-none">
+                            <button class="bg-accent text-white font-bold p-3 rounded-r-lg" data-lang-key="referralSend">Send</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Login & Profile Page -->
+            <div id="login-page" class="page">
+                <div id="login-view">
+                    <h2 class="text-3xl font-bold text-center mb-8 accent-color" data-lang-key="loginTitle">Login or Sign Up</h2>
+                    <div class="max-w-sm mx-auto bg-gray-50 p-8 rounded-xl shadow-lg space-y-4">
+                        <button onclick="login()" class="w-full bg-white hover:bg-gray-100 border border-gray-300 text-gray-700 font-bold py-3 px-4 rounded-lg flex items-center justify-center space-x-2">
+                            <svg class="w-5 h-5" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path><path fill="none" d="M0 0h48v48H0z"></path></svg>
+                            <span data-lang-key="loginGoogle">Continue with Google</span>
+                        </button>
+                        <button onclick="login()" class="w-full bg-black hover:bg-gray-800 text-white font-bold py-3 px-4 rounded-lg flex items-center justify-center space-x-2">
+                            <i data-lucide="apple" class="w-5 h-5"></i>
+                            <span data-lang-key="loginApple">Continue with Apple</span>
+                        </button>
+                        <p class="text-xs text-center text-gray-500 pt-4" data-lang-key="loginAdminPrompt">Are you an admin? <a href="#" onclick="showAdminLogin()" class="accent-color hover:underline">Click here</a>.</p>
+                    </div>
+                </div>
+                
+                <div id="profile-view" class="hidden">
+                    <h2 class="text-3xl font-bold text-center mb-8 accent-color" data-lang-key="profileTitle">Your Profile</h2>
+                    <div class="max-w-3xl mx-auto bg-gray-50 p-6 rounded-xl shadow-lg">
+                        <div class="flex items-center space-x-4 mb-6">
+                            <img src="https://placehold.co/80x80/F97316/FFFFFF?text=U" class="rounded-full" alt="User Avatar">
+                            <div>
+                                <h3 class="text-2xl font-bold">User Name</h3>
+                                <p class="text-gray-500">user.name@example.com</p>
+                            </div>
+                            <button onclick="logout()" class="ml-auto bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg" data-lang-key="profileLogout">Logout</button>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Order History -->
+                            <div>
+                                <h4 class="text-xl font-semibold mb-4" data-lang-key="profileOrderHistory">Order History</h4>
+                                <div class="space-y-3 max-h-64 overflow-y-auto pr-2">
+                                    <div class="bg-gray-100 p-3 rounded-lg">
+                                        <p class="font-semibold">Order #12345 - 12.07.2025</p>
+                                        <p class="text-sm text-gray-500">Kebab Rollo, Ayran - 35.50 PLN</p>
+                                    </div>
+                                    <div class="bg-gray-100 p-3 rounded-lg">
+                                        <p class="font-semibold">Order #12321 - 05.07.2025</p>
+                                        <p class="text-sm text-gray-500">Kebab Plate, Cola - 42.00 PLN</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Saved Addresses -->
+                            <div>
+                                <h4 class="text-xl font-semibold mb-4" data-lang-key="profileSavedAddresses">Saved Addresses</h4>
+                                <div class="space-y-3">
+                                    <div class="bg-gray-100 p-3 rounded-lg">
+                                        <p class="font-semibold" data-lang-key="profileHome">Home</p>
+                                        <p class="text-sm text-gray-500">ul. Słoneczna 10, 40-001 Katowice</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Loyalty Progress -->
+                            <div>
+                                <h4 class="text-xl font-semibold mb-4" data-lang-key="profileLoyalty">Loyalty Progress</h4>
+                                <div class="bg-gray-100 p-3 rounded-lg">
+                                    <p data-lang-key="profilePoints">Points: 450</p>
+                                    <p data-lang-key="profileStamps">Stamps: 3/5</p>
+                                    <a href="#" onclick="showPage('loyalty')" class="text-sm accent-color hover:underline" data-lang-key="profileViewRewards">View Rewards →</a>
+                                </div>
+                            </div>
+                            <!-- Favourites -->
+                            <div>
+                                <h4 class="text-xl font-semibold mb-4" data-lang-key="profileFavourites">Favourites</h4>
+                                <div class="space-y-3">
+                                    <div class="bg-gray-100 p-3 rounded-lg flex justify-between items-center">
+                                        <p>Spicy Adana Kebab</p>
+                                        <button class="bg-accent text-white text-xs font-bold py-1 px-2 rounded" data-lang-key="profileOrderAgain">Order Again</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Panel -->
+            <div id="admin-page" class="page">
+                <div class="flex flex-col md:flex-row gap-8">
+                    <aside class="md:w-1/4 lg:w-1/5">
+                        <h2 class="text-2xl font-bold mb-6" data-lang-key="adminTitle">Admin Panel</h2>
+                        <nav class="space-y-2">
+                            <a href="#" class="admin-sidebar-link" data-view="orders" onclick="showAdminView('orders')">
+                                <i data-lucide="receipt" class="w-5 h-5 mr-3"></i> <span data-lang-key="adminNavOrders">Orders</span>
+                            </a>
+                            <a href="#" class="admin-sidebar-link" data-view="reservations" onclick="showAdminView('reservations')">
+                                <i data-lucide="calendar-days" class="w-5 h-5 mr-3"></i> <span data-lang-key="adminNavReservations">Reservations</span>
+                            </a>
+                            <a href="#" class="admin-sidebar-link" data-view="menu" onclick="showAdminView('menu')">
+                                <i data-lucide="book-open-text" class="w-5 h-5 mr-3"></i> <span data-lang-key="adminNavMenu">Menu</span>
+                            </a>
+                            <a href="#" class="admin-sidebar-link" data-view="analytics" onclick="showAdminView('analytics')">
+                                <i data-lucide="bar-chart-3" class="w-5 h-5 mr-3"></i> <span data-lang-key="adminNavAnalytics">Analytics</span>
+                            </a>
+                            <a href="#" class="admin-sidebar-link" data-view="promotions" onclick="showAdminView('promotions')">
+                                <i data-lucide="ticket-percent" class="w-5 h-5 mr-3"></i> <span data-lang-key="adminNavPromotions">Promotions</span>
+                            </a>
+                            <a href="#" class="admin-sidebar-link" data-view="loyalty" onclick="showAdminView('loyalty')">
+                                <i data-lucide="gem" class="w-5 h-5 mr-3"></i> <span data-lang-key="adminNavLoyalty">Loyalty</span>
+                            </a>
+                            <a href="#" class="admin-sidebar-link" data-view="security" onclick="showAdminView('security')">
+                                <i data-lucide="shield-check" class="w-5 h-5 mr-3"></i> <span data-lang-key="adminNavSecurity">Security</span>
+                            </a>
+                            <a href="#" class="admin-sidebar-link mt-4" onclick="logout()">
+                                <i data-lucide="log-out" class="w-5 h-5 mr-3"></i> <span data-lang-key="profileLogout">Logout</span>
+                            </a>
+                        </nav>
+                    </aside>
+                    <main class="flex-1">
+                        <!-- Admin Views will be injected here -->
+                        <div id="admin-orders-view" class="admin-view"></div>
+                        <div id="admin-reservations-view" class="admin-view"></div>
+                        <div id="admin-menu-view" class="admin-view"></div>
+                        <div id="admin-analytics-view" class="admin-view"></div>
+                        <div id="admin-promotions-view" class="admin-view"></div>
+                        <div id="admin-loyalty-view" class="admin-view"></div>
+                        <div id="admin-security-view" class="admin-view"></div>
+                    </main>
+                </div>
+            </div>
+
+            <!-- Contact Page -->
+            <div id="contact-page" class="page">
+                <h2 class="text-3xl font-bold text-center mb-8 accent-color" data-lang-key="contactTitle">Contact & Location</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="bg-gray-50 p-6 rounded-xl shadow-lg">
+                        <h3 class="text-xl font-bold mb-4" data-lang-key="contactDetails">Our Details</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start space-x-3">
+                                <i data-lucide="map-pin" class="w-6 h-6 mt-1 accent-color flex-shrink-0"></i>
+                                <div>
+                                    <h4 class="font-semibold" data-lang-key="contactAddress">Address</h4>
+                                    <p class="text-gray-500">Rolna 63, 40-555 Katowice, Poland</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <i data-lucide="phone" class="w-6 h-6 mt-1 accent-color flex-shrink-0"></i>
+                                <div>
+                                    <h4 class="font-semibold" data-lang-key="contactPhone">Phone</h4>
+                                    <p class="text-gray-500">512 928 003</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start space-x-3">
+                                <i data-lucide="mail" class="w-6 h-6 mt-1 accent-color flex-shrink-0"></i>
+                                <div>
+                                    <h4 class="font-semibold" data-lang-key="contactEmail">Email</h4>
+                                    <p class="text-gray-500">kontakt@zaferkebab.pl</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                             <h4 class="font-semibold mb-3" data-lang-key="socialTitle">Follow Us</h4>
+                             <div class="flex space-x-4">
+                                <a href="#" class="text-gray-500 hover:text-orange-500 transition-colors duration-300"><i data-lucide="facebook" class="w-6 h-6"></i></a>
+                                <a href="#" class="text-gray-500 hover:text-orange-500 transition-colors duration-300"><i data-lucide="instagram" class="w-6 h-6"></i></a>
+                             </div>
+                        </div>
+                    </div>
+                    <div>
+                        <iframe class="w-full h-full rounded-xl shadow-lg min-h-[400px]"
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2553.490159622089!2d19.00193661572279!3d50.22307997944458!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x4716ce58d343e573%3A0x1c9b8c6d12f1b88!2sRolna%2063%2C%2040-555%20Katowice%2C%20Poland!5e0!3m2!1sen!2sus!4v1658345678901!5m2!1sen!2sus"
+                            style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    </div>
+                </div>
+            </div>
+            
+        </main>
+
+        <!-- Footer -->
+        <footer class="text-center p-6 border-t border-gray-200 text-sm text-gray-500">
+            <p>&copy; 2024 Zafer Kebab. Wszelkie prawa zastrzeżone.</p>
+            <p class="mt-1" data-lang-key="promoInfo"></p>
+            <p class="mt-1">
+                <a href="#" onclick="showAdminLogin()" class="hover:underline" data-lang-key="footerAdmin">Admin Panel</a>
+            </p>
+        </footer>
+
+        <!-- Modal for Spin Result -->
+        <div id="spin-result-modal" class="fixed inset-0 z-50 items-center justify-center hidden modal-backdrop">
+            <div class="bg-white rounded-lg shadow-xl p-8 max-w-sm mx-auto text-center">
+                <h3 class="text-2xl font-bold accent-color" data-lang-key="modalCongrats">Congratulations!</h3>
+                <p class="my-4" data-lang-key="modalYouWon">You won:</p>
+                <p id="spin-result-text" class="text-3xl font-bold my-6"></p>
+                <button onclick="closeModal('spin-result-modal')" class="w-full bg-accent hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg" data-lang-key="modalClose">Close</button>
+            </div>
+        </div>
+
+        <!-- Modal for Admin Login -->
+        <div id="admin-login-modal" class="fixed inset-0 z-50 items-center justify-center hidden modal-backdrop">
+            <div class="bg-white rounded-lg shadow-xl p-8 max-w-sm mx-auto text-center">
+                <h3 class="text-2xl font-bold accent-color" data-lang-key="adminLoginTitle">Admin Login</h3>
+                <p class="my-4 text-gray-600" data-lang-key="adminLoginPromptMsg">Enter the admin password to continue.</p>
+                <input type="password" id="admin-password-input" class="w-full bg-gray-100 border border-gray-300 rounded-lg p-3 my-4 focus:ring-2 focus:ring-accent focus:outline-none" placeholder="Password">
+                <p id="admin-login-error" class="text-red-500 text-sm mb-4 hidden"></p>
+                <div class="flex space-x-2">
+                    <button onclick="closeModal('admin-login-modal')" class="w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg" data-lang-key="modalCancel">Cancel</button>
+                    <button onclick="handleAdminLoginAttempt()" class="w-1/2 bg-accent hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg" data-lang-key="modalLogin">Login</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal for Editing Menu Item -->
+        <div id="edit-item-modal" class="fixed inset-0 z-50 items-center justify-center hidden modal-backdrop">
+            <div class="bg-white rounded-lg shadow-xl p-8 max-w-lg w-full mx-auto">
+                <h3 class="text-2xl font-bold mb-4">Edit Menu Item</h3>
+                <form id="edit-item-form" class="space-y-4">
+                    <input type="hidden" id="edit-item-id">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Name (PL)</label>
+                        <input type="text" id="edit-item-name-pl" class="w-full bg-gray-100 border border-gray-300 rounded-lg p-2">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Description (PL)</label>
+                        <textarea id="edit-item-desc-pl" rows="2" class="w-full bg-gray-100 border border-gray-300 rounded-lg p-2"></textarea>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Price (PLN)</label>
+                        <input type="number" step="0.01" id="edit-item-price" class="w-full bg-gray-100 border border-gray-300 rounded-lg p-2">
+                    </div>
+                    <div class="flex space-x-2 pt-4">
+                        <button type="button" onclick="closeModal('edit-item-modal')" class="w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg">Cancel</button>
+                        <button type="button" onclick="saveMenuItemChanges()" class="w-1/2 bg-accent hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // --- DATA & STATE MANAGEMENT ---
+        const translations = {
+            // ... (translations object will be populated below)
+        };
+
+        const menuData = {
+            mains: [
+                { id: 1, name: { en: 'Kebab in Dough', pl: 'Kebab w Cieście', ru: 'Кебаб в тесте' }, desc: { en: 'Meat, salads, sauce.', pl: 'Mięso, surówki, sos.', ru: 'Мясо, салат, соус.' }, price: { mały: 22, średni: 26, duży: 31, mega: 36 }, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Ciasto', tags: [], available: true },
+                { id: 2, name: { en: 'Dough with Cheese', pl: 'Ciasto z Serem', ru: 'Тесто с сыром' }, desc: { en: 'Meat, salads, sauce, cheese.', pl: 'Mięso, surówki, sos, ser.', ru: 'Мясо, салат, соус, сыр.' }, price: { mały: 24, średni: 28, duży: 33, mega: 38 }, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Ciasto+Ser', tags: [], available: true },
+                { id: 3, name: { en: 'Dough with Fries', pl: 'Ciasto z Frytkami', ru: 'Тесто с картофелем фри' }, desc: { en: 'Meat, fries, sauce.', pl: 'Mięso, frytki, sos.', ru: 'Мясо, картофель фри, соус.' }, price: { mały: 25, średni: 29, duży: 35, mega: 39 }, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Ciasto+Frytki', tags: [], available: true },
+                { id: 4, name: { en: 'Kebab Box', pl: 'Kebab Kubełek', ru: 'Кебаб в коробке' }, desc: { en: 'Meat, fries, salads, sauce.', pl: 'Mięso, frytki, surówki, sos.', ru: 'Мясо, картофель фри, салат, соус.' }, price: { mały: 22, średni: 26, duży: 32 }, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Kubełek', tags: [], available: true },
+                { id: 5, name: { en: 'Kebab on Plate', pl: 'Kebab na Talerzu', ru: 'Кебаб на тарелке' }, desc: { en: 'Meat, salads, fries, sauce.', pl: 'Mięso, surówki, frytki, sos.', ru: 'Мясо, салат, картофель фри, соус.' }, price: { standard: 36, podwójny: 45 }, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Talerz', tags: [], available: true },
+                { id: 6, name: { en: 'Kapsalon', pl: 'Kapsalon', ru: 'Капсалон' }, desc: { en: 'Meat, fries, salad, cheese, yellow sauce.', pl: 'Mięso, frytki, surówki, ser żółty, sos.', ru: 'Мясо, картофель фри, салат, сыр, желтый соус.' }, price: 36.00, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Kapsalon', tags: [], available: false },
+                { id: 7, name: { en: 'Zafer Special for 4', pl: 'Zafer Specjal dla 4 Osób', ru: 'Зафер специальный для 4' }, desc: { en: 'Beef & chicken, salads, fries, 5 nuggets, 2 tenders, 2 mozzarella sticks, 2 sauces.', pl: 'Mięso wołowina i kurczak, sałatki, frytki, 5 szt nuggets, 2 szt polędwiczek, 2 szt sticks mozzarella, 2 x sos.', ru: 'Говядина и курица, салаты, картофель фри, 5 наггетсов, 2 тендера, 2 палочки моцареллы, 2 соуса.' }, price: 120.00, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Zafer+Specjal', tags: [], available: true },
+                { id: 8, name: { en: 'Kebab Bun', pl: 'Kebab Bułka', ru: 'Кебаб в булке' }, desc: { en: 'Meat, salads, sauce.', pl: 'Mięso, surówki, sos.', ru: 'Мясо, салат, соус.' }, price: { standard: 23, mega: 33 }, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Bułka', tags: [], available: true },
+            ],
+            fast_food: [
+                { id: 9, name: { en: 'Hamburger', pl: 'Hamburger', ru: 'Гамбургер' }, desc: { en: 'Classic hamburger.', pl: 'Klasyczny hamburger.', ru: 'Классический гамбургер.' }, price: { standard: 15, duży: 18 }, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Hamburger', tags: [], available: true },
+                { id: 10, name: { en: 'Cheeseburger', pl: 'Cheeseburger', ru: 'Чизбургер' }, desc: { en: 'Classic cheeseburger.', pl: 'Klasyczny cheeseburger.', ru: 'Классический чизбургер.' }, price: { standard: 16, duży: 20 }, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Cheeseburger', tags: [], available: true },
+                { id: 11, name: { en: 'Hot-Dog', pl: 'Hot-Dog', ru: 'Хот-дог' }, desc: { en: 'Classic hot-dog.', pl: 'Klasyczny hot-dog.', ru: 'Классический хот-дог.' }, price: { standard: 20, duży: 24 }, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Hot-Dog', tags: [], available: true },
+            ],
+            starters: [
+                { id: 12, name: { en: 'Falafel in Dough', pl: 'Falafel w Cieście', ru: 'Фалафель в тесте' }, desc: { en: 'Falafel, sauce, salads, fries.', pl: 'Falafel + sos, surówki, frytki, sos.', ru: 'Фалафель, соус, салат, картофель фри.' }, price: 22.00, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Falafel', tags: ['vegan'], available: true },
+                { id: 13, name: { en: 'Fries', pl: 'Frytki', ru: 'Картофель фри' }, desc: { en: 'Golden crispy fries.', pl: 'Złociste, chrupiące frytki.', ru: 'Золотистый, хрустящий картофель фри.' }, price: { standard: 10, duży: 15 }, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Frytki', tags: ['vegan'], available: true },
+            ],
+            extras: [
+                { id: 14, name: { en: 'Extra Sauce, Cheese', pl: 'Dodatkowy Sos, Ser', ru: 'Дополнительный соус, сыр' }, desc: { en: '', pl: '', ru: '' }, price: 3.00, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Sos', tags: [], available: true },
+                { id: 15, name: { en: 'Craft Meat', pl: 'Mięso Kraftowe', ru: 'Крафтовое мясо' }, desc: { en: '', pl: '', ru: '' }, price: 7.00, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Mięso', tags: [], available: true },
+                { id: 16, name: { en: 'Extra Meat', pl: 'Dodatkowe Mięso', ru: 'Дополнительное мясо' }, desc: { en: '', pl: '', ru: '' }, price: 5.00, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Mięso', tags: [], available: true },
+                { id: 17, name: { en: 'Packaging', pl: 'Opakowanie', ru: 'Упаковка' }, desc: { en: '', pl: '', ru: '' }, price: 1.00, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Box', tags: [], available: true },
+            ],
+            drinks: [
+                { id: 18, name: { en: 'Pepsi', pl: 'Pepsi', ru: 'Пепси' }, desc: { en: '0.5L', pl: '0.5L', ru: '0.5л' }, price: 8.00, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Pepsi', tags: [], available: true },
+                { id: 19, name: { en: 'Water', pl: 'Woda', ru: 'Вода' }, desc: { en: '0.5L', pl: '0.5L', ru: '0.5л' }, price: 5.00, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Water', tags: [], available: true },
+                { id: 20, name: { en: 'Mirinda', pl: 'Mirinda', ru: 'Миринда' }, desc: { en: '0.5L', pl: '0.5L', ru: '0.5л' }, price: 8.00, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Mirinda', tags: [], available: true },
+                { id: 21, name: { en: 'Ayran', pl: 'Ayran', ru: 'Айран' }, desc: { en: '0.5L', pl: '0.5L', ru: '0.5л' }, price: 5.00, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Ayran', tags: [], available: true },
+                { id: 22, name: { en: '7UP', pl: '7UP', ru: '7UP' }, desc: { en: '0.5L', pl: '0.5L', ru: '0.5л' }, price: 8.00, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=7UP', tags: [], available: true },
+                { id: 23, name: { en: 'Ice Tea', pl: 'Ice Tea', ru: 'Холодный чай' }, desc: { en: '0.5L', pl: '0.5L', ru: '0.5л' }, price: 8.00, image: 'https://placehold.co/400x300/F3F4F6/F97316?text=Ice+Tea', tags: [], available: true },
+            ]
+        };
+
+        const wheelPrizes = [
+            { text: { en: '10% Off', pl: '10% Zniżki', ru: 'Скидка 10%' } },
+            { text: { en: 'Free Drink', pl: 'Darmowy Napój', ru: 'Бесплатный напиток' } },
+            { text: { en: '5% Off', pl: '5% Zniżki', ru: 'Скидка 5%' } },
+            { text: { en: 'Try Again', pl: 'Spróbuj Ponownie', ru: 'Попробуйте еще' } },
+            { text: { en: '15% Off', pl: '15% Zniżki', ru: 'Скидка 15%' } },
+            { text: { en: 'Free Fries', pl: 'Darmowe Frytki', ru: 'Бесплатная картошка' } },
+        ];
+        
+        const offers = {
+            en: ["Free delivery on orders over 100 PLN!", "Try our special Kapsalon!"],
+            pl: ["Darmowa dostawa dla zamówień powyżej 100 PLN!", "Spróbuj naszego specjalnego Kapsalona!"],
+            ru: ["Бесплатная доставка при заказе свыше 100 PLN!", "Попробуйте наш специальный Капсалон!"]
+        };
+
+        let currentLang = 'pl';
+        let currentPage = 'home';
+        let cart = [];
+        let isLoggedIn = false;
+        let currentOrderTotal = 0;
+        let currentAdminView = 'orders';
+
+        // --- TRANSLATIONS OBJECT ---
+        Object.assign(translations, {
+            pl: {
+                title: "Zafer Kebab - Katowice, Rolna 63",
+                restaurantName: "Zafer Kebab",
+                navHome: "Główna", navMenu: "Menu", navOrder: "Zamów Online", navReservation: "Rezerwacja", navLoyalty: "Lojalność", navContact: "Kontakt", navLogin: "Login/Profil",
+                welcomeTitle: "Witaj w Zafer Kebab!",
+                quickLinkMenu: "Nasze Menu", quickLinkMenuDesc: "Odkryj pyszne kebaby i nie tylko.",
+                quickLinkOrder: "Zamów Teraz", quickLinkOrderDesc: "Odbiór osobisty lub szybka dostawa.",
+                quickLinkReservation: "Zarezerwuj Stolik", quickLinkReservationDesc: "Zarezerwuj miejsce na wspaniały czas.",
+                socialTitle: "Obserwuj Nas!", socialDesc: "Bądź na bieżąco z naszymi nowościami i promocjami w mediach społecznościowych.",
+                menuTitle: "Nasze Menu", menuStarters: "Przystawki", menuMains: "Dania Główne", menuFastFood: "Fast Food", menuExtras: "Dodatki", menuDrinks: "Napoje",
+                dishTagVegan: "Wegańskie", dishTagSpicy: "Ostre", dishAddToCart: "Do koszyka",
+                orderTitle: "Szczegóły Zamówienia", orderPickup: "Odbiór", orderDelivery: "Dostawa",
+                orderDeliveryAddress: "Adres dostawy", orderMapPreview: "Podgląd mapy", orderScheduleTime: "Zaplanuj czas", orderAsap: "Jak najszybciej",
+                orderStatusTitle: "Status Twojego zamówienia", statusReceived: "Otrzymano", statusCooking: "W trakcie", statusPackaging: "Pakowanie", statusReady: "Gotowe",
+                orderPlace: "Złóż Zamówienie", orderSimulate: "Symuluj postęp",
+                cartTitle: "Twój Koszyk", cartEmpty: "Twój koszyk jest pusty. Dodaj pyszne jedzenie z naszego menu!",
+                cartSubtotal: "Suma częściowa", cartDeliveryFee: "Opłata za dostawę", cartTotal: "Łącznie",
+                cartPromoPlaceholder: "Kod promocyjny", cartApply: "Zastosuj", cartCheckout: "Przejdź do kasy", cartEstimatedTime: "Szacowany czas dostawy: 30-45 minut",
+                formName: "Imię", formSurname: "Nazwisko", formPhone: "Numer telefonu", formCash: "Kwota gotówki", formCashHelp: "Kwota, którą zapłacisz, do obliczenia reszty. Musi być >= suma zamówienia.", formComments: "Dodatkowe uwagi", formCommentsPlaceholder: "np. kod do klatki, piętro, bez ostrego sosu...",
+                reservationTitle: "Zarezerwuj Swój Stolik", reservationDate: "Data", reservationTime: "Godzina", reservationGuests: "Liczba gości", reservationConfirm: "Potwierdź Rezerwację",
+                reservationSuccess: "Rezerwacja Potwierdzona!", reservationSuccessDesc: "Wysłaliśmy potwierdzenie na Twój e-mail. Pokaż ten kod QR przy przybyciu.",
+                loyaltyTitle: "Program Lojalnościowy", loyaltyStampCard: "Karta Pieczątkowa", loyaltyStampDesc: "Kup 5 dań, a 6. otrzymasz gratis!",
+                loyaltyPoints: "Twoje Punkty Lojalnościowe", loyaltySpin: "Zakręć i Wygraj!", loyaltySpinDesc: "Użyj 50 punktów, aby zakręcić kołem i wygrać losową zniżkę!",
+                loyaltySpinBtn: "Zakręć (50 pkt)", loyaltyReferralLink: "→ Zaproś znajomych i zdobądź więcej nagród!",
+                referralTitle: "Poleć Znajomego", referralDesc: "Zaproś znajomych do Zafer Kebab. Gdy złożą swoje pierwsze zamówienie, oboje otrzymacie kupon na 15% zniżki!",
+                referralYourLink: "Twój osobisty link polecający", referralCopy: "Kopiuj", referralInviteEmail: "Lub zaproś przez e-mail", referralSend: "Wyślij",
+                loginTitle: "Zaloguj się lub Zarejestruj", loginGoogle: "Kontynuuj z Google", loginApple: "Kontynuuj z Apple", loginAdminPrompt: "Jesteś administratorem? Kliknij tutaj.",
+                profileTitle: "Twój Profil", profileLogout: "Wyloguj", profileOrderHistory: "Historia zamówień", profileSavedAddresses: "Zapisane adresy", profileHome: "Dom",
+                profileLoyalty: "Postęp w programie lojalnościowym", profilePoints: "Punkty", profileStamps: "Pieczątki", profileViewRewards: "Zobacz nagrody →",
+                profileFavourites: "Ulubione", profileOrderAgain: "Zamów ponownie",
+                adminTitle: "Panel Administratora", adminMenuManagement: "Zarządzanie Menu", adminAddNewItem: "Dodaj nową pozycję", adminEdit: "Edytuj", adminDelete: "Usuń",
+                adminActiveOrders: "Aktywne Zamówienia", adminReservations: "Rezerwacje na dziś", adminAnalytics: "Analityka",
+                adminTopItems: "Najlepiej sprzedające się pozycje", adminPeakTimes: "Godziny szczytu zamówień", adminLoyalUsers: "Najbardziej lojalni użytkownicy",
+                contactTitle: "Kontakt i Lokalizacja", contactDetails: "Nasze Dane", contactAddress: "Adres", contactPhone: "Telefon", contactEmail: "Email",
+                footerAdmin: "Panel Administratora", promoInfo: "",
+                modalCongrats: "Gratulacje!", modalYouWon: "Wygrałeś:", modalClose: "Zamknij",
+                adminLoginTitle: "Logowanie Administratora", adminLoginPromptMsg: "Wprowadź hasło administratora, aby kontynuować.", modalCancel: "Anuluj", modalLogin: "Zaloguj", errorIncorrectPassword: "Nieprawidłowe hasło. Spróbuj ponownie.",
+                adminNavOrders: "Zamówienia", adminNavReservations: "Rezerwacje", adminNavMenu: "Menu", adminNavAnalytics: "Analityka", adminNavPromotions: "Promocje", adminNavLoyalty: "Program Lojalnościowy", adminNavSecurity: "Bezpieczeństwo",
+            },
+            en: {
+                title: "Zafer Kebab - Katowice, Rolna 63",
+                restaurantName: "Zafer Kebab",
+                navHome: "Home", navMenu: "Menu", navOrder: "Order Online", navReservation: "Reservation", navLoyalty: "Loyalty", navContact: "Contact", navLogin: "Login/Profile",
+                welcomeTitle: "Welcome to Zafer Kebab!",
+                quickLinkMenu: "Our Menu", quickLinkMenuDesc: "Explore delicious kebabs and more.",
+                quickLinkOrder: "Order Now", quickLinkOrderDesc: "Pickup or fast delivery.",
+                quickLinkReservation: "Book a Table", quickLinkReservationDesc: "Reserve your spot for a great time.",
+                socialTitle: "Follow Us!", socialDesc: "Stay updated with our latest news and promotions on social media.",
+                menuTitle: "Our Menu", menuStarters: "Starters", menuMains: "Mains", menuFastFood: "Fast Food", menuExtras: "Extras", menuDrinks: "Drinks",
+                dishTagVegan: "Vegan", dishTagSpicy: "Spicy", dishAddToCart: "Add to Cart",
+                orderTitle: "Your Order Details", orderPickup: "Pickup", orderDelivery: "Delivery",
+                orderDeliveryAddress: "Delivery Address", orderMapPreview: "Map Preview", orderScheduleTime: "Schedule Time", orderAsap: "As Soon As Possible",
+                orderStatusTitle: "Your Order Status", statusReceived: "Order Received", statusCooking: "Cooking", statusPackaging: "Packaging", statusReady: "Ready",
+                orderPlace: "Place Order", orderSimulate: "Simulate Progress",
+                cartTitle: "Your Cart", cartEmpty: "Your cart is empty. Add some delicious food from our menu!",
+                cartSubtotal: "Subtotal", cartDeliveryFee: "Delivery Fee", cartTotal: "Total",
+                cartPromoPlaceholder: "Promo Code", cartApply: "Apply", cartCheckout: "Proceed to Checkout", cartEstimatedTime: "Estimated delivery time: 30-45 minutes",
+                formName: "Name", formSurname: "Surname", formPhone: "Phone Number", formCash: "Cash Amount", formCashHelp: "Amount you will pay with, for change calculation. Must be >= order total.", formComments: "Additional Comments", formCommentsPlaceholder: "e.g., building code, floor, no spicy sauce...",
+                reservationTitle: "Book Your Table", reservationDate: "Date", reservationTime: "Time", reservationGuests: "Number of Guests", reservationConfirm: "Confirm Reservation",
+                reservationSuccess: "Reservation Confirmed!", reservationSuccessDesc: "We've sent a confirmation to your email. Show this QR code upon arrival.",
+                loyaltyTitle: "Loyalty & Rewards", loyaltyStampCard: "Stamp Card", loyaltyStampDesc: "Buy 5 meals, get 1 free!",
+                loyaltyPoints: "Your Loyalty Points", loyaltySpin: "Spin to Win!", loyaltySpinDesc: "Use 50 points to spin the wheel for a random discount!",
+                loyaltySpinBtn: "Spin (50 pts)", loyaltyReferralLink: "→ Invite friends and earn more rewards!",
+                referralTitle: "Refer a Friend", referralDesc: "Invite your friends to Zafer Kebab. When they make their first order, you both get a 15% discount coupon!",
+                referralYourLink: "Your personal referral link", referralCopy: "Copy", referralInviteEmail: "Or invite via email", referralSend: "Send",
+                loginTitle: "Login or Sign Up", loginGoogle: "Continue with Google", loginApple: "Continue with Apple", loginAdminPrompt: "Are you an admin? Click here.",
+                profileTitle: "Your Profile", profileLogout: "Logout", profileOrderHistory: "Order History", profileSavedAddresses: "Saved Addresses", profileHome: "Home",
+                profileLoyalty: "Loyalty Progress", profilePoints: "Points", profileStamps: "Stamps", profileViewRewards: "View Rewards →",
+                profileFavourites: "Favourites", profileOrderAgain: "Order Again",
+                adminTitle: "Admin Panel", adminMenuManagement: "Menu Management", adminAddNewItem: "Add New Item", adminEdit: "Edit", adminDelete: "Delete",
+                adminActiveOrders: "Active Orders", adminReservations: "Reservations Today", adminAnalytics: "Analytics",
+                adminTopItems: "Top Selling Items", adminPeakTimes: "Peak Order Times", adminLoyalUsers: "Most Loyal Users",
+                contactTitle: "Contact & Location", contactDetails: "Our Details", contactAddress: "Address", contactPhone: "Phone", contactEmail: "Email",
+                footerAdmin: "Admin Panel", promoInfo: "",
+                modalCongrats: "Congratulations!", modalYouWon: "You won:", modalClose: "Close",
+                adminLoginTitle: "Admin Login", adminLoginPromptMsg: "Enter the admin password to continue.", modalCancel: "Cancel", modalLogin: "Login", errorIncorrectPassword: "Incorrect password. Please try again.",
+                adminNavOrders: "Orders", adminNavReservations: "Reservations", adminNavMenu: "Menu", adminNavAnalytics: "Analytics", adminNavPromotions: "Promotions", adminNavLoyalty: "Loyalty", adminNavSecurity: "Security",
+            },
+            ru: {
+                title: "Zafer Kebab - Катовице, Рольна 63",
+                restaurantName: "Zafer Kebab",
+                navHome: "Главная", navMenu: "Меню", navOrder: "Заказать онлайн", navReservation: "Бронь", navLoyalty: "Лояльность", navContact: "Контакты", navLogin: "Вход/Профиль",
+                welcomeTitle: "Добро пожаловать в Zafer Kebab!",
+                quickLinkMenu: "Наше Меню", quickLinkMenuDesc: "Откройте для себя вкусные кебабы и многое другое.",
+                quickLinkOrder: "Заказать сейчас", quickLinkOrderDesc: "Самовывоз или быстрая доставка.",
+                quickLinkReservation: "Забронировать стол", quickLinkReservationDesc: "Зарезервируйте место для отличного времяпрепровождения.",
+                socialTitle: "Подписывайтесь!", socialDesc: "Следите за нашими последними новостями и акциями в социальных сетях.",
+                menuTitle: "Наше Меню", menuStarters: "Закуски", menuMains: "Основные блюда", menuFastFood: "Фаст-фуд", menuExtras: "Добавки", menuDrinks: "Напитки",
+                dishTagVegan: "Веганское", dishTagSpicy: "Острое", dishAddToCart: "В корзину",
+                orderTitle: "Детали Вашего Заказа", orderPickup: "Самовывоз", orderDelivery: "Доставка",
+                orderDeliveryAddress: "Адрес доставки", orderMapPreview: "Предпросмотр карты", orderScheduleTime: "Запланировать время", orderAsap: "Как можно скорее",
+                orderStatusTitle: "Статус вашего заказа", statusReceived: "Заказ получен", statusCooking: "Готовится", statusPackaging: "Упаковывается", statusReady: "Готов",
+                orderPlace: "Разместить Заказ", orderSimulate: "Симулировать прогресс",
+                cartTitle: "Ваша Корзина", cartEmpty: "Ваша корзина пуста. Добавьте вкусную еду из нашего меню!",
+                cartSubtotal: "Подытог", cartDeliveryFee: "Стоимость доставки", cartTotal: "Итого",
+                cartPromoPlaceholder: "Промокод", cartApply: "Применить", cartCheckout: "Перейти к оформлению", cartEstimatedTime: "Примерное время доставки: 30-45 минут",
+                formName: "Имя", formSurname: "Фамилия", formPhone: "Номер телефона", formCash: "Сумма наличных", formCashHelp: "Сумма, которой вы будете платить, для расчета сдачи. Должна быть >= суммы заказа.", formComments: "Дополнительные комментарии", formCommentsPlaceholder: "например, код домофона, этаж, без острого соуса...",
+                reservationTitle: "Забронируйте Ваш Столик", reservationDate: "Дата", reservationTime: "Время", reservationGuests: "Количество гостей", reservationConfirm: "Подтвердить бронь",
+                reservationSuccess: "Бронь подтверждена!", reservationSuccessDesc: "Мы отправили подтверждение на ваш e-mail. Покажите этот QR-код по прибытии.",
+                loyaltyTitle: "Лояльность и Награды", loyaltyStampCard: "Карта с печатями", loyaltyStampDesc: "Купи 5 блюд, получи 6-е бесплатно!",
+                loyaltyPoints: "Ваши баллы лояльности", loyaltySpin: "Крути и выигрывай!", loyaltySpinDesc: "Используйте 50 баллов, чтобы крутить колесо и выиграть случайную скидку!",
+                loyaltySpinBtn: "Крутить (50 б.)", loyaltyReferralLink: "→ Приглашайте друзей и получайте больше наград!",
+                referralTitle: "Пригласи Друга", referralDesc: "Пригласите друзей в Zafer Kebab. Когда они сделают свой первый заказ, вы оба получите купон на скидку 15%!",
+                referralYourLink: "Ваша личная реферальная ссылка", referralCopy: "Копировать", referralInviteEmail: "Или пригласить по e-mail", referralSend: "Отправить",
+                loginTitle: "Войти или Зарегистрироваться", loginGoogle: "Продолжить с Google", loginApple: "Продолжить с Apple", loginAdminPrompt: "Вы администратор? Нажмите здесь.",
+                profileTitle: "Ваш Профиль", profileLogout: "Выйти", profileOrderHistory: "История заказов", profileSavedAddresses: "Сохраненные адреса", profileHome: "Дом",
+                profileLoyalty: "Прогресс лояльности", profilePoints: "Баллы", profileStamps: "Печати", profileViewRewards: "Посмотреть награды →",
+                profileFavourites: "Избранное", profileOrderAgain: "Заказать снова",
+                adminTitle: "Панель Администратора", adminMenuManagement: "Управление Меню", adminAddNewItem: "Добавить новый пункт", adminEdit: "Редакт.", adminDelete: "Удалить",
+                adminActiveOrders: "Активные Заказы", adminReservations: "Брони на сегодня", adminAnalytics: "Аналитика",
+                adminTopItems: "Самые продаваемые товары", adminPeakTimes: "Часы пик заказов", adminLoyalUsers: "Самые лояльные пользователи",
+                contactTitle: "Контакты и Местоположение", contactDetails: "Наши данные", contactAddress: "Адрес", contactPhone: "Телефон", contactEmail: "Эл. почта",
+                footerAdmin: "Панель Администратора", promoInfo: "",
+                modalCongrats: "Поздравляем!", modalYouWon: "Вы выиграли:", modalClose: "Закрыть",
+                adminLoginTitle: "Вход для администратора", adminLoginPromptMsg: "Введите пароль администратора, чтобы продолжить.", modalCancel: "Отмена", modalLogin: "Войти", errorIncorrectPassword: "Неверный пароль. Пожалуйста, попробуйте еще раз.",
+                adminNavOrders: "Заказы", adminNavReservations: "Бронирования", adminNavMenu: "Меню", adminNavAnalytics: "Аналитика", adminNavPromotions: "Акции", adminNavLoyalty: "Лояльность", adminNavSecurity: "Безопасность",
+            }
+        });
+
+        // --- CORE FUNCTIONS ---
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('[data-lang-key]').forEach(el => {
+                const key = el.getAttribute('data-lang-key');
+                if (translations[lang] && translations[lang][key]) {
+                    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                        el.placeholder = translations[lang][key];
+                    } else {
+                        el.innerText = translations[lang][key];
+                    }
+                }
+            });
+            // Update active language button style
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('opacity-50', btn.getAttribute('data-lang') !== lang);
+            });
+            // Re-render dynamic content with new language
+            renderMenu();
+            renderWheel();
+            updateCart();
+            startOfferRotation();
+            if (currentPage === 'admin') {
+                renderAdminView();
+            }
+            lucide.createIcons();
+        }
+
+        function showPage(pageId) {
+            if (pageId === 'admin' && !isLoggedIn) {
+                showAdminLogin();
+                return;
+            }
+
+            currentPage = pageId;
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.toggle('active', page.id === `${pageId}-page`);
+            });
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.toggle('active-nav', link.dataset.page === pageId);
+                link.classList.toggle('inactive-nav', link.dataset.page !== pageId);
+            });
+
+            if (pageId === 'admin') {
+                showAdminView('orders'); // Default to orders view
+            }
+            window.scrollTo(0, 0);
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+        
+        // --- PAGE-SPECIFIC RENDERERS & LOGIC ---
+
+        // Home Page
+        let offerInterval;
+        function startOfferRotation() {
+            if (offerInterval) clearInterval(offerInterval);
+            const offerBanner = document.getElementById('offer-banner');
+            let offerIndex = 0;
+            const updateOffer = () => {
+                offerBanner.classList.add('opacity-0');
+                setTimeout(() => {
+                    offerBanner.innerText = offers[currentLang][offerIndex];
+                    offerBanner.classList.remove('opacity-0');
+                    offerIndex = (offerIndex + 1) % offers[currentLang].length;
+                }, 500);
+            };
+            updateOffer();
+            offerInterval = setInterval(updateOffer, 5000);
+        }
+
+        // Menu Page
+        function showMenuTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(`${tabId}-tab`).classList.add('active');
+            document.querySelectorAll('.menu-tab-btn').forEach(btn => {
+                btn.classList.toggle('accent-color', btn.dataset.tab === tabId);
+                btn.classList.toggle('border-b-2', btn.dataset.tab === tabId);
+                btn.classList.toggle('border-accent', btn.dataset.tab === tabId);
+                btn.classList.toggle('text-gray-500', btn.dataset.tab !== tabId);
+            });
+        }
+        
+        function getTagHtml(tag) {
+            const tagTranslations = {
+                vegan: { key: 'dishTagVegan', color: 'green' },
+                spicy: { key: 'dishTagSpicy', color: 'red' },
+            };
+            if (!tagTranslations[tag]) return '';
+            const tagInfo = tagTranslations[tag];
+            return `<span class="bg-${tagInfo.color}-100 text-${tagInfo.color}-800 text-xs font-semibold mr-2 px-2.5 py-0.5 rounded-full" data-lang-key="${tagInfo.key}">${translations[currentLang][tagInfo.key]}</span>`;
+        }
+        
+        function updatePrice(itemId, selectElement) {
+            const priceSpan = document.getElementById(`price-${itemId}`);
+            priceSpan.innerText = `${parseFloat(selectElement.value).toFixed(2)} PLN`;
+        }
+
+        function renderMenu() {
+            Object.keys(menuData).forEach(category => {
+                const container = document.getElementById(`${category}-tab`);
+                if (!container) return;
+                container.innerHTML = menuData[category]
+                    .filter(item => item.available)
+                    .map(item => {
+                        const isMultiSize = typeof item.price === 'object';
+                        const firstPrice = isMultiSize ? Object.values(item.price)[0] : item.price;
+                        
+                        let priceSection;
+                        if (isMultiSize) {
+                            priceSection = `
+                                <div class="flex items-center gap-2">
+                                    <select id="size-select-${item.id}" onchange="updatePrice(${item.id}, this)" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-orange-500 focus:border-orange-500 block w-full p-2">
+                                        ${Object.entries(item.price).map(([size, price]) => `<option value="${price}">${size.charAt(0).toUpperCase() + size.slice(1)}</option>`).join('')}
+                                    </select>
+                                    <span id="price-${item.id}" class="text-lg font-bold accent-color w-24 text-right">${firstPrice.toFixed(2)} PLN</span>
+                                </div>
+                            `;
+                        } else {
+                            priceSection = `<span class="text-lg font-bold accent-color">${firstPrice.toFixed(2)} PLN</span>`;
+                        }
+
+                        return `
+                            <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex flex-col hover:shadow-lg transition-shadow duration-300">
+                                <img src="${item.image}" alt="${item.name[currentLang]}" class="w-full h-48 object-cover">
+                                <div class="p-4 flex flex-col flex-grow">
+                                    <h4 class="text-xl font-bold text-gray-800">${item.name[currentLang]}</h4>
+                                    <p class="text-gray-500 my-2 flex-grow">${item.desc[currentLang]}</p>
+                                    <div class="mb-4">
+                                        ${item.tags.map(tag => getTagHtml(tag)).join('')}
+                                    </div>
+                                    <div class="flex flex-col gap-4 mt-auto">
+                                        ${priceSection}
+                                        <button onclick="addToCart(${item.id})" class="w-full bg-accent hover:bg-orange-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300" data-lang-key="dishAddToCart">${translations[currentLang].dishAddToCart}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+            });
+        }
+
+        // Cart & Order
+        function addToCart(itemId) {
+            const itemData = Object.values(menuData).flat().find(i => i.id === itemId);
+            const isMultiSize = typeof itemData.price === 'object';
+            
+            let selectedSize = null;
+            let selectedPrice = isMultiSize ? 0 : itemData.price;
+            
+            if (isMultiSize) {
+                const sizeSelect = document.getElementById(`size-select-${itemId}`);
+                selectedSize = sizeSelect.options[sizeSelect.selectedIndex].text;
+                selectedPrice = parseFloat(sizeSelect.value);
+            }
+            
+            const cartItemId = selectedSize ? `${itemId}-${selectedSize}` : `${itemId}`;
+            
+            const existingItem = cart.find(item => item.cartId === cartItemId);
+
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({ 
+                    ...itemData, 
+                    cartId: cartItemId,
+                    selectedSize: selectedSize,
+                    price: selectedPrice, // Use the selected price
+                    quantity: 1 
+                });
+            }
+            updateCart();
+        }
+
+        function updateCartQuantity(cartId, change) {
+            const cartItem = cart.find(item => item.cartId === cartId);
+            if (cartItem) {
+                cartItem.quantity += change;
+                if (cartItem.quantity <= 0) {
+                    cart = cart.filter(item => item.cartId !== cartId);
+                }
+            }
+            updateCart();
+        }
+
+        function updateCart() {
+            const cartItemsContainer = document.getElementById('cart-items');
+            const cartSummarySection = document.getElementById('cart-summary-section');
+            const cartItemCount = document.getElementById('cart-item-count');
+
+            if (!cartItemsContainer) return;
+
+            const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+            cartItemCount.innerText = totalItems;
+            cartItemCount.classList.toggle('hidden', totalItems === 0);
+
+            if (cart.length === 0) {
+                const emptyCartText = translations[currentLang]?.cartEmpty || 'Your cart is empty.';
+                cartItemsContainer.innerHTML = `<p class="text-center text-gray-500 py-8">${emptyCartText}</p>`;
+                cartSummarySection.classList.add('hidden');
+            } else {
+                cartSummarySection.classList.remove('hidden');
+                cartItemsContainer.innerHTML = cart.map(item => `
+                    <div class="bg-gray-50 p-4 rounded-lg flex items-center justify-between">
+                        <div class="flex items-center flex-1 min-w-0">
+                            <img src="${item.image}" alt="${item.name[currentLang]}" class="w-16 h-16 rounded-md object-cover mr-4">
+                            <div class="min-w-0">
+                                <p class="font-bold truncate">${item.name[currentLang]} ${item.selectedSize ? `(${item.selectedSize})` : ''}</p>
+                                <p class="text-sm text-gray-500">${item.price.toFixed(2)} PLN</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 mx-4">
+                            <button onclick="updateCartQuantity('${item.cartId}', -1)" class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300">-</button>
+                            <span>${item.quantity}</span>
+                            <button onclick="updateCartQuantity('${item.cartId}', 1)" class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300">+</button>
+                        </div>
+                        <p class="font-bold text-right w-24">${(item.price * item.quantity).toFixed(2)} PLN</p>
+                    </div>
+                `).join('');
+            }
+
+            const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+            const isDelivery = document.getElementById('delivery-btn')?.classList.contains('bg-accent');
+            const deliveryFee = isDelivery && subtotal > 0 ? 9.99 : 0;
+            currentOrderTotal = subtotal + deliveryFee;
+
+            document.getElementById('cart-subtotal').innerText = `${subtotal.toFixed(2)} PLN`;
+            document.getElementById('cart-delivery-fee').innerText = `${deliveryFee.toFixed(2)} PLN`;
+            document.getElementById('cart-total').innerText = `${currentOrderTotal.toFixed(2)} PLN`;
+        }
+
+        function setupOrderTypeToggle() {
+            const pickupBtn = document.getElementById('pickup-btn');
+            const deliveryBtn = document.getElementById('delivery-btn');
+            const deliveryForm = document.getElementById('delivery-details-form');
+            
+            function setOrderType(type) {
+                if (type === 'pickup') {
+                    pickupBtn.classList.add('bg-accent', 'text-white');
+                    pickupBtn.classList.remove('text-gray-700');
+                    deliveryBtn.classList.add('text-gray-700');
+                    deliveryBtn.classList.remove('bg-accent', 'text-white');
+                    deliveryForm.classList.add('hidden');
+                } else {
+                    deliveryBtn.classList.add('bg-accent', 'text-white');
+                    deliveryBtn.classList.remove('text-gray-700');
+                    pickupBtn.classList.add('text-gray-700');
+                    pickupBtn.classList.remove('bg-accent', 'text-white');
+                    deliveryForm.classList.remove('hidden');
+                }
+                updateCart(); // Recalculate delivery fee
+            }
+
+            pickupBtn.addEventListener('click', () => setOrderType('pickup'));
+            deliveryBtn.addEventListener('click', () => setOrderType('delivery'));
+            
+            setOrderType('pickup');
+        }
+        
+        function placeOrder() {
+            const isDelivery = document.getElementById('delivery-btn').classList.contains('bg-accent');
+            const errorDiv = document.getElementById('order-error-message');
+            errorDiv.classList.add('hidden');
+            errorDiv.innerHTML = '';
+
+            let customerInfo = {
+                name: 'Pickup Customer',
+                type: 'Pickup'
+            };
+
+            if (isDelivery) {
+                const name = document.getElementById('delivery-name').value.trim();
+                const surname = document.getElementById('delivery-surname').value.trim();
+                const phone = document.getElementById('delivery-phone').value.trim();
+                const address = document.getElementById('delivery-address').value.trim();
+                const cashInput = document.getElementById('delivery-cash').value;
+
+                let errors = [];
+                if (!name) errors.push('Name is required.');
+                if (!surname) errors.push('Surname is required.');
+                if (!phone) errors.push('Phone number is required.');
+                if (!address) errors.push('Address is required.');
+                
+                const cashAmount = parseFloat(cashInput);
+                if (!cashInput || isNaN(cashAmount)) {
+                    errors.push('Cash amount is required.');
+                } else if (cashAmount < currentOrderTotal) {
+                    errors.push(`Cash amount must be at least ${currentOrderTotal.toFixed(2)} PLN.`);
+                }
+                
+                if (errors.length > 0) {
+                    errorDiv.innerHTML = errors.join('<br>');
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+                customerInfo = { name: `${name} ${surname}`, type: 'Delivery' };
+            }
+
+            // If validation passes or it's a pickup order
+            const newOrder = {
+                id: `ZAF-${String(adminData.orders.length + 100).padStart(3, '0')}`,
+                name: customerInfo.name,
+                type: customerInfo.type,
+                total: currentOrderTotal,
+                status: 'Received',
+                items: cart.map(item => `${item.quantity}x ${item.name[currentLang]} ${item.selectedSize ? `(${item.selectedSize})` : ''}`).join(', ')
+            };
+
+            adminData.orders.unshift(newOrder); // Add to beginning of array for live update
+            
+            document.getElementById('order-form-container').classList.add('hidden');
+            document.getElementById('kitchen-status-tracker').classList.remove('hidden');
+            simulateOrderStatus();
+            cart = []; // Clear cart after successful order
+            updateCart();
+        }
+
+        function simulateOrderStatus() {
+            let status = 1;
+            const dots = [1,2,3,4].map(i => document.getElementById(`status-dot-${i}`));
+            const progressLine = document.getElementById('status-line-progress');
+            
+            const updateStatus = () => {
+                if (status > 4) return;
+                dots[status-1].classList.add('active');
+                progressLine.style.width = `${((status - 1) / 3) * 100}%`;
+                status++;
+            };
+            
+            dots.forEach(d => d.classList.remove('active'));
+            progressLine.style.width = '0%';
+            
+            setTimeout(() => updateStatus(), 0);
+            setTimeout(() => updateStatus(), 1500);
+            setTimeout(() => updateStatus(), 3000);
+            setTimeout(() => updateStatus(), 4500);
+        }
+
+        // Reservation
+        document.getElementById('reservation-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            document.getElementById('reservation-confirmation').classList.remove('hidden');
+            this.reset();
+        });
+
+        // Loyalty
+        function renderWheel() {
+            const wheel = document.getElementById('wheel');
+            if (!wheel) return;
+            wheel.innerHTML = '';
+            const sliceCount = wheelPrizes.length;
+            const sliceAngle = 360 / sliceCount;
+            const colors = ['#EF4444', '#F59E0B', '#84CC16', '#10B981', '#3B82F6', '#6366F1'];
+            
+            wheelPrizes.forEach((prize, i) => {
+                const slice = document.createElement('div');
+                slice.className = 'wheel-slice';
+                slice.style.transform = `rotate(${sliceAngle * i}deg)`;
+                slice.style.backgroundColor = colors[i % colors.length];
+                slice.innerHTML = `<span>${prize.text[currentLang]}</span>`;
+                wheel.appendChild(slice);
+            });
+        }
+
+        function spinWheel() {
+            const wheel = document.getElementById('wheel');
+            const spinButton = document.getElementById('spin-button');
+            spinButton.disabled = true;
+
+            const randomSpins = Math.floor(Math.random() * 4) + 3;
+            const prizeIndex = Math.floor(Math.random() * wheelPrizes.length);
+            const sliceAngle = 360 / wheelPrizes.length;
+            const targetRotation = (randomSpins * 360) + (prizeIndex * -sliceAngle) - (sliceAngle / 2);
+
+            wheel.style.transform = `rotate(${targetRotation}deg)`;
+
+            setTimeout(() => {
+                const resultText = document.getElementById('spin-result-text');
+                resultText.innerText = wheelPrizes[prizeIndex].text[currentLang];
+                openModal('spin-result-modal');
+                spinButton.disabled = false;
+            }, 5500);
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+            document.getElementById(modalId).classList.add('flex');
+        }
+        
+        function closeModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+
+            // Also clear password and error on close
+            if (modalId === 'admin-login-modal') {
+                document.getElementById('admin-password-input').value = '';
+                document.getElementById('admin-login-error').classList.add('hidden');
+            }
+        }
+
+        // Referral
+        function copyReferralLink() {
+            const linkInput = document.getElementById('referral-link');
+            linkInput.select();
+            linkInput.setSelectionRange(0, 99999);
+            try {
+                navigator.clipboard.writeText(linkInput.value).then(() => {
+                    alert('Link copied to clipboard!');
+                });
+            } catch (err) {
+                document.execCommand('copy');
+                alert('Link copied to clipboard!');
+            }
+        }
+        
+        // Login / Admin
+        function login() {
+            isLoggedIn = true;
+            document.getElementById('login-view').classList.add('hidden');
+            document.getElementById('profile-view').classList.remove('hidden');
+        }
+
+        function logout() {
+            isLoggedIn = false;
+            document.getElementById('profile-view').classList.add('hidden');
+            document.getElementById('login-view').classList.remove('hidden');
+            if (currentPage === 'admin') {
+                showPage('home');
+            }
+        }
+
+        function showAdminLogin() {
+            openModal('admin-login-modal');
+        }
+
+        function handleAdminLoginAttempt() {
+            const passwordInput = document.getElementById('admin-password-input');
+            const errorP = document.getElementById('admin-login-error');
+            const password = passwordInput.value;
+
+            if (password === 'zafeR0852') {
+                isLoggedIn = true;
+                closeModal('admin-login-modal');
+                showPage('admin');
+            } else {
+                errorP.innerText = translations[currentLang]?.errorIncorrectPassword || 'Incorrect password.';
+                errorP.classList.remove('hidden');
+                passwordInput.value = '';
+            }
+        }
+
+        // --- ADMIN PANEL LOGIC ---
+
+        let adminData = {
+            orders: [
+                { id: 'ZAF-001', name: 'Jan Kowalski', type: 'Delivery', total: 88.50, status: 'Cooking', items: '2x Kebab Rollo, 1x Ayran' },
+                { id: 'ZAF-002', name: 'Anna Nowak', type: 'Pickup', total: 36.00, status: 'Ready', items: '1x Kapsalon' },
+                { id: 'ZAF-003', name: 'Piotr Wiśniewski', type: 'Delivery', total: 120.00, status: 'Received', items: '1x Zafer Special for 4' },
+                { id: 'ZAF-004', name: 'Katarzyna Wójcik', type: 'Pickup', total: 46.00, status: 'Completed', items: '2x Kebab Bułka' },
+            ],
+            reservations: [
+                { name: 'Adam Małysz', guests: 4, time: '19:00', notes: 'Birthday celebration' },
+                { name: 'Ewa Sonnet', guests: 2, time: '20:30', notes: 'Window seat if possible' }
+            ],
+            promotions: [
+                { code: 'PORTOFINO', discount: '10%', type: 'percentage', status: 'Active' },
+                { code: 'KEBAPKING', discount: '5 PLN', type: 'fixed', status: 'Expired' }
+            ],
+            loyaltyUsers: [
+                { name: 'Jan Kowalski', points: 1250, referrals: 3 },
+                { name: 'Anna Nowak', points: 850, referrals: 1 },
+            ]
+        };
+        let orderFilter = 'All';
+
+        function showAdminView(viewId) {
+            currentAdminView = viewId;
+            document.querySelectorAll('.admin-view').forEach(view => {
+                view.classList.toggle('active', view.id === `admin-${viewId}-view`);
+            });
+            document.querySelectorAll('.admin-sidebar-link').forEach(link => {
+                link.classList.toggle('active', link.dataset.view === viewId);
+            });
+            renderAdminView();
+        }
+        
+        function renderAdminView() {
+            switch(currentAdminView) {
+                case 'orders': renderAdminOrders(); break;
+                case 'reservations': renderAdminReservations(); break;
+                case 'menu': renderAdminMenu(); break;
+                case 'analytics': renderAdminAnalytics(); break;
+                case 'promotions': renderAdminPromotions(); break;
+                case 'loyalty': renderAdminLoyalty(); break;
+                case 'security': renderAdminSecurity(); break;
+            }
+            lucide.createIcons();
+        }
+
+        function getStatusBadge(status) {
+            switch(status) {
+                case 'Received': return 'bg-blue-100 text-blue-800';
+                case 'Cooking': return 'bg-yellow-100 text-yellow-800';
+                case 'Ready': return 'bg-purple-100 text-purple-800';
+                case 'Completed': return 'bg-green-100 text-green-800';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function renderAdminOrders() {
+            const container = document.getElementById('admin-orders-view');
+            const filteredOrders = adminData.orders.filter(order => orderFilter === 'All' || order.status === orderFilter);
+
+            container.innerHTML = `
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-2xl font-bold">Order Management</h3>
+                    <button onclick="simulateTestOrder()" class="bg-blue-500 text-white px-3 py-2 rounded-lg text-sm font-semibold flex items-center gap-2 hover:bg-blue-600">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i> Test Order
+                    </button>
+                </div>
+                <!-- Order Filters -->
+                <div class="flex space-x-2 mb-4">
+                    ${['All', 'Received', 'Cooking', 'Ready', 'Completed'].map(status => `
+                        <button onclick="setOrderFilter('${status}')" class="px-3 py-1 text-sm rounded-full ${orderFilter === status ? 'bg-orange-500 text-white' : 'bg-gray-200 text-gray-700'}">${status}</button>
+                    `).join('')}
+                </div>
+                <div class="space-y-4">
+                    ${filteredOrders.map(order => `
+                        <div class="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200">
+                            <div class="flex flex-wrap justify-between items-center gap-2">
+                                <div>
+                                    <p class="font-bold text-lg">${order.id} - ${order.name}</p>
+                                    <p class="text-sm text-gray-500">${order.type} | ${order.total.toFixed(2)} PLN</p>
+                                </div>
+                                <span class="text-sm font-semibold px-3 py-1 rounded-full ${getStatusBadge(order.status)}">${order.status}</span>
+                            </div>
+                            <p class="mt-2 text-gray-600">${order.items}</p>
+                            <div class="mt-3 flex gap-2">
+                                <button class="text-xs bg-green-500 text-white px-3 py-1 rounded-md hover:bg-green-600">Mark Completed</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        function setOrderFilter(status) {
+            orderFilter = status;
+            renderAdminOrders();
+        }
+        
+        function simulateTestOrder() {
+            const randomId = `ZAF-${String(adminData.orders.length + 10).padStart(3, '0')}`;
+            const names = ['Test Customer', 'Demo User', 'Sample Client'];
+            const randomName = names[Math.floor(Math.random() * names.length)];
+            const randomTotal = (Math.random() * 100 + 20).toFixed(2);
+            const newTestOrder = {
+                id: randomId,
+                name: randomName,
+                type: 'Delivery',
+                total: parseFloat(randomTotal),
+                status: 'Received',
+                items: '1x Test Kebab, 1x Test Drink'
+            };
+            adminData.orders.unshift(newTestOrder);
+            renderAdminOrders();
+        }
+
+        function renderAdminMenu() {
+            const container = document.getElementById('admin-menu-view');
+            const allItems = Object.values(menuData).flat();
+            container.innerHTML = `
+                <h3 class="text-2xl font-bold mb-4">Menu Management</h3>
+                <div class="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+                                <tr>
+                                    <th class="px-4 py-3">Item</th>
+                                    <th class="px-4 py-3">Price</th>
+                                    <th class="px-4 py-3">Available</th>
+                                    <th class="px-4 py-3">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${allItems.map(item => `
+                                    <tr class="border-b">
+                                        <td class="px-4 py-3 font-medium">${item.name.en}</td>
+                                        <td class="px-4 py-3">${typeof item.price === 'object' ? Object.values(item.price)[0].toFixed(2) + '...' : item.price.toFixed(2)} PLN</td>
+                                        <td class="px-4 py-3">
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" ${item.available ? 'checked' : ''} onchange="toggleAvailability(${item.id})">
+                                                <span class="slider"></span>
+                                            </label>
+                                        </td>
+                                        <td class="px-4 py-3 flex gap-2">
+                                            <button onclick="openEditMenuModal(${item.id})" class="text-blue-600 hover:underline">Edit</button>
+                                            <button onclick="deleteMenuItem(${item.id})" class="text-red-600 hover:underline">Delete</button>
+                                        </td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        function findMenuItem(itemId) {
+            for (const category in menuData) {
+                const item = menuData[category].find(i => i.id === itemId);
+                if (item) return { item, category };
+            }
+            return { item: null, category: null };
+        }
+
+        function toggleAvailability(itemId) {
+            const { item } = findMenuItem(itemId);
+            if (item) {
+                item.available = !item.available;
+                renderAdminMenu();
+                renderMenu(); // Update public menu
+            }
+        }
+
+        function deleteMenuItem(itemId) {
+            if (confirm('Are you sure you want to delete this item?')) {
+                const { item, category } = findMenuItem(itemId);
+                if (item && category) {
+                    menuData[category] = menuData[category].filter(i => i.id !== itemId);
+                    renderAdminMenu();
+                    renderMenu();
+                }
+            }
+        }
+
+        function openEditMenuModal(itemId) {
+            const { item } = findMenuItem(itemId);
+            if (item) {
+                document.getElementById('edit-item-id').value = item.id;
+                document.getElementById('edit-item-name-pl').value = item.name.pl;
+                document.getElementById('edit-item-desc-pl').value = item.desc.pl;
+                // Handle single price vs multi-price object
+                const priceValue = typeof item.price === 'object' ? Object.values(item.price)[0] : item.price;
+                document.getElementById('edit-item-price').value = priceValue;
+                openModal('edit-item-modal');
+            }
+        }
+
+        function saveMenuItemChanges() {
+            const itemId = parseInt(document.getElementById('edit-item-id').value);
+            const { item } = findMenuItem(itemId);
+
+            if (item) {
+                const newName = document.getElementById('edit-item-name-pl').value;
+                const newDesc = document.getElementById('edit-item-desc-pl').value;
+                const newPrice = parseFloat(document.getElementById('edit-item-price').value);
+
+                item.name.pl = newName;
+                item.name.en = newName; // Simple fallback
+                item.name.ru = newName; // Simple fallback
+                item.desc.pl = newDesc;
+                item.desc.en = newDesc;
+                item.desc.ru = newDesc;
+                
+                // Update price carefully
+                if (typeof item.price === 'object') {
+                    // For multi-size items, this simple modal only updates the first size's price
+                    const firstSize = Object.keys(item.price)[0];
+                    item.price[firstSize] = newPrice;
+                } else {
+                    item.price = newPrice;
+                }
+
+                closeModal('edit-item-modal');
+                renderAdminMenu();
+                renderMenu();
+            }
+        }
+
+        function renderAdminReservations() {
+            const container = document.getElementById('admin-reservations-view');
+            container.innerHTML = `<h3 class="text-2xl font-bold mb-4">Reservations</h3><p>Reservation dashboard coming soon.</p>`;
+        }
+        function renderAdminAnalytics() {
+            const container = document.getElementById('admin-analytics-view');
+            container.innerHTML = `<h3 class="text-2xl font-bold mb-4">Analytics</h3><p>Analytics dashboard coming soon.</p>`;
+        }
+        function renderAdminPromotions() {
+            const container = document.getElementById('admin-promotions-view');
+            container.innerHTML = `<h3 class="text-2xl font-bold mb-4">Promotions</h3><p>Promotions dashboard coming soon.</p>`;
+        }
+        function renderAdminLoyalty() {
+            const container = document.getElementById('admin-loyalty-view');
+            container.innerHTML = `<h3 class="text-2xl font-bold mb-4">Loyalty Management</h3><p>Loyalty dashboard coming soon.</p>`;
+        }
+        function renderAdminSecurity() {
+            const container = document.getElementById('admin-security-view');
+            container.innerHTML = `<h3 class="text-2xl font-bold mb-4">Security</h3><p>Security settings coming soon.</p>`;
+        }
+
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // Setup event listeners
+            document.getElementById('mobile-menu-button').addEventListener('click', toggleMobileMenu);
+            document.querySelectorAll('.menu-tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => showMenuTab(btn.dataset.tab));
+            });
+            const spinButton = document.getElementById('spin-button');
+            if(spinButton) spinButton.addEventListener('click', spinWheel);
+            
+            // Initial setup
+            setupOrderTypeToggle();
+            showPage('home');
+            showMenuTab('mains');
+            renderMenu();
+            renderWheel();
+            updateCart();
+            changeLanguage(currentLang);
+            startOfferRotation();
+            lucide.createIcons();
+        });
+
+    </script>
+</body>
+</html>
