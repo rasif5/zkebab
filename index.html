@@ -18,6 +18,10 @@
 
     <!-- Animate.css for animations -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 
     <!-- Custom Styles -->
     <style>
@@ -887,7 +891,12 @@
         let currentAdminView = 'orders';
         let isOrderingEnabled = true;
         let isOrderingManuallyDisabled = false;
-        
+        let storeOpenHours = {
+            mon_thu: { open: 11, close: 21 },
+            fri_sat: { open: 11, close: 22 },
+            sun: { open: 13, close: 21 }
+        };
+
         // --- TRANSLATIONS OBJECT ---
         Object.assign(translations, {
             pl: {
