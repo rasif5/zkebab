@@ -211,6 +211,19 @@
             0%   { transform: translate(0, 0); }
             100% { transform: translate(-100%, 0); }
         }
+        /* Drag and Drop Uploader */
+        .drop-zone {
+            border: 2px dashed #D1D5DB;
+            border-radius: 0.5rem;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s;
+        }
+        .drop-zone.dragover {
+            background-color: #FEF3C7;
+            border-color: #F97316;
+        }
     </style>
 </head>
 <body class="bg-white text-gray-700">
@@ -278,7 +291,7 @@
             <div id="home-page" class="page">
                 <!-- Welcome Banner -->
                 <div class="rounded-xl shadow-lg overflow-hidden mb-8">
-                    <div class="h-80 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=1981&auto=format&fit=crop')">
+                    <div id="home-banner-image" class="h-80 bg-cover bg-center">
                         <div class="h-full bg-black bg-opacity-60 flex flex-col justify-center items-center text-center p-4">
                             <h1 class="font-poppins text-4xl md:text-6xl font-black text-white text-shadow uppercase tracking-wider animate__animated animate__fadeInDown" data-lang-key="welcomeTitle">Welcome to Zafer Kebab!</h1>
                             <p id="offer-banner" class="mt-4 text-lg md:text-xl text-gray-200 transition-opacity duration-500 text-shadow animate__animated animate__fadeInUp"></p>
@@ -810,8 +823,12 @@
                         <input type="number" step="0.01" id="edit-item-price" class="w-full bg-gray-100 border border-gray-300 rounded-lg p-2">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-600 mb-1">Image URL</label>
-                        <input type="text" id="edit-item-image" class="w-full bg-gray-100 border border-gray-300 rounded-lg p-2">
+                        <label class="block text-sm font-medium text-gray-600 mb-1">Image</label>
+                        <div id="item-image-drop-zone" class="drop-zone">
+                            <p class="text-gray-500">Drag & drop an image here, or click to select</p>
+                            <img id="item-image-preview" src="" class="mt-4 max-h-32 mx-auto rounded-lg hidden"/>
+                        </div>
+                        <input type="file" id="item-image-input" class="hidden" accept="image/*">
                     </div>
                     <div class="flex space-x-2 pt-4">
                         <button type="button" onclick="closeModal('edit-item-modal')" class="w-1/2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded-lg">Cancel</button>
@@ -896,6 +913,12 @@
             fri_sat: { open: 11, close: 22 },
             sun: { open: 13, close: 21 }
         };
+        let homepageBannerUrl = 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?q=80&w=1981&auto=format&fit=crop';
+        let contactInfo = {
+            phone: '512 928 003',
+            email: 'kontakt@zaferkebab.pl'
+        };
+        let tempItemImageUrl = null;
 
         // --- TRANSLATIONS OBJECT ---
         Object.assign(translations, {
@@ -1077,6 +1100,9 @@
 
             if (pageId === 'admin') {
                 showAdminView('orders'); // Default to orders view
+            }
+            if (pageId === 'home') {
+                document.getElementById('home-banner-image').style.backgroundImage = `url('${homepageBannerUrl}')`;
             }
             window.scrollTo(0, 0);
         }
@@ -1701,11 +1727,16 @@
                 document.getElementById('edit-item-id').value = item.id;
                 document.getElementById('edit-item-name-pl').value = item.name.pl;
                 document.getElementById('edit-item-desc-pl').value = item.desc.pl;
-                document.getElementById('edit-item-image').value = item.image;
-                // Handle single price vs multi-price object
+                
+                const preview = document.getElementById('item-image-preview');
+                preview.src = item.image;
+                preview.classList.remove('hidden');
+
                 const priceValue = typeof item.price === 'object' ? Object.values(item.price)[0] : item.price;
                 document.getElementById('edit-item-price').value = priceValue;
+                
                 openModal('edit-item-modal');
+                setupItemImageUpload();
             }
         }
 
@@ -1717,7 +1748,6 @@
                 const newName = document.getElementById('edit-item-name-pl').value;
                 const newDesc = document.getElementById('edit-item-desc-pl').value;
                 const newPrice = parseFloat(document.getElementById('edit-item-price').value);
-                const newImage = document.getElementById('edit-item-image').value;
 
                 item.name.pl = newName;
                 item.name.en = newName; // Simple fallback
@@ -1725,11 +1755,13 @@
                 item.desc.pl = newDesc;
                 item.desc.en = newDesc;
                 item.desc.ru = newDesc;
-                item.image = newImage;
+
+                if (tempItemImageUrl) {
+                    item.image = tempItemImageUrl;
+                    tempItemImageUrl = null; // Reset after use
+                }
                 
-                // Update price carefully
                 if (typeof item.price === 'object') {
-                    // For multi-size items, this simple modal only updates the first size's price
                     const firstSize = Object.keys(item.price)[0];
                     item.price[firstSize] = newPrice;
                 } else {
@@ -1739,6 +1771,35 @@
                 closeModal('edit-item-modal');
                 renderAdminMenu();
                 renderMenu();
+            }
+        }
+        
+        function setupItemImageUpload() {
+            const dropZone = document.getElementById('item-image-drop-zone');
+            const fileInput = document.getElementById('item-image-input');
+            const preview = document.getElementById('item-image-preview');
+
+            dropZone.onclick = () => fileInput.click();
+            fileInput.onchange = (e) => handleItemImageFile(e.target.files[0]);
+
+            dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
+            dropZone.ondragleave = () => { dropZone.classList.remove('dragover'); };
+            dropZone.ondrop = (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                handleItemImageFile(e.dataTransfer.files[0]);
+            };
+
+            function handleItemImageFile(file) {
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        tempItemImageUrl = e.target.result;
+                        preview.src = e.target.result;
+                        preview.classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                }
             }
         }
 
@@ -1762,30 +1823,125 @@
             const container = document.getElementById('admin-security-view');
             container.innerHTML = `
                 <h3 class="text-2xl font-bold mb-4">Settings</h3>
-                <div class="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200 space-y-4">
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <p class="font-semibold">Online Ordering</p>
-                            <p class="text-sm text-gray-500">Enable or disable the ability for customers to place orders.</p>
+                <div class="bg-gray-50 p-6 rounded-lg shadow-sm border border-gray-200 space-y-6">
+                    <div>
+                        <h4 class="text-lg font-semibold mb-2">Store Status</h4>
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="font-medium">Online Ordering</p>
+                                <p class="text-sm text-gray-500">Enable or disable all online orders.</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" ${!isOrderingManuallyDisabled ? 'checked' : ''} onchange="toggleOrderingSystem()">
+                                <span class="slider"></span>
+                            </label>
                         </div>
-                        <label class="toggle-switch">
-                            <input type="checkbox" ${!isOrderingManuallyDisabled ? 'checked' : ''} onchange="toggleOrderingSystem()">
-                            <span class="slider"></span>
-                        </label>
                     </div>
-                    <div class="border-t pt-4">
+                    <div class="border-t pt-6">
+                        <h4 class="text-lg font-semibold mb-2">Contact Information</h4>
                          <label class="block text-sm font-medium text-gray-600 mb-1">Phone Number</label>
-                         <input type="text" id="admin-phone" class="w-full bg-white border border-gray-300 rounded-lg p-2" value="512 928 003">
-                    </div>
-                     <div>
+                         <input type="text" id="admin-phone" class="w-full bg-white border border-gray-300 rounded-lg p-2 mb-4" value="${contactInfo.phone}">
                          <label class="block text-sm font-medium text-gray-600 mb-1">Email Address</label>
-                         <input type="email" id="admin-email" class="w-full bg-white border border-gray-300 rounded-lg p-2" value="kontakt@zaferkebab.pl">
+                         <input type="email" id="admin-email" class="w-full bg-white border border-gray-300 rounded-lg p-2" value="${contactInfo.email}">
                     </div>
-                    <button class="bg-accent text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-orange-600">Save Contact Info</button>
+                     <div class="border-t pt-6">
+                        <h4 class="text-lg font-semibold mb-2">Opening Hours</h4>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Mon-Thu Open</label>
+                                <input type="number" id="admin-hours-mon-thu-open" class="w-full bg-white border border-gray-300 rounded-lg p-2" value="${storeOpenHours.mon_thu.open}">
+                            </div>
+                             <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Mon-Thu Close</label>
+                                <input type="number" id="admin-hours-mon-thu-close" class="w-full bg-white border border-gray-300 rounded-lg p-2" value="${storeOpenHours.mon_thu.close}">
+                            </div>
+                             <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Fri-Sat Open</label>
+                                <input type="number" id="admin-hours-fri-sat-open" class="w-full bg-white border border-gray-300 rounded-lg p-2" value="${storeOpenHours.fri_sat.open}">
+                            </div>
+                             <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Fri-Sat Close</label>
+                                <input type="number" id="admin-hours-fri-sat-close" class="w-full bg-white border border-gray-300 rounded-lg p-2" value="${storeOpenHours.fri_sat.close}">
+                            </div>
+                             <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Sun Open</label>
+                                <input type="number" id="admin-hours-sun-open" class="w-full bg-white border border-gray-300 rounded-lg p-2" value="${storeOpenHours.sun.open}">
+                            </div>
+                             <div>
+                                <label class="block text-sm font-medium text-gray-600 mb-1">Sun Close</label>
+                                <input type="number" id="admin-hours-sun-close" class="w-full bg-white border border-gray-300 rounded-lg p-2" value="${storeOpenHours.sun.close}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="border-t pt-6">
+                        <h4 class="text-lg font-semibold mb-2">Homepage Banner</h4>
+                        <div id="banner-drop-zone" class="drop-zone">
+                            <p class="text-gray-500">Drag & drop an image here, or click to select</p>
+                            <img id="banner-preview" src="${homepageBannerUrl}" class="mt-4 max-h-32 mx-auto rounded-lg"/>
+                        </div>
+                        <input type="file" id="banner-file-input" class="hidden" accept="image/*">
+                    </div>
+                    <button onclick="saveAdminSettings()" class="w-full mt-4 bg-accent text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-orange-600">Save Settings</button>
                 </div>
             `;
+            setupBannerUpload();
         }
         
+        function saveAdminSettings() {
+            // Save contact info
+            contactInfo.phone = document.getElementById('admin-phone').value;
+            contactInfo.email = document.getElementById('admin-email').value;
+
+            // Save opening hours
+            storeOpenHours.mon_thu.open = parseInt(document.getElementById('admin-hours-mon-thu-open').value);
+            storeOpenHours.mon_thu.close = parseInt(document.getElementById('admin-hours-mon-thu-close').value);
+            storeOpenHours.fri_sat.open = parseInt(document.getElementById('admin-hours-fri-sat-open').value);
+            storeOpenHours.fri_sat.close = parseInt(document.getElementById('admin-hours-fri-sat-close').value);
+            storeOpenHours.sun.open = parseInt(document.getElementById('admin-hours-sun-open').value);
+            storeOpenHours.sun.close = parseInt(document.getElementById('admin-hours-sun-close').value);
+            
+            // The homepageBannerUrl is already updated by the uploader, so we just need to refresh the UI
+            
+            // Update UI
+            document.getElementById('contact-phone-display').innerText = contactInfo.phone;
+            document.getElementById('contact-email-display').innerText = contactInfo.email;
+            document.getElementById('hours-mon-thu-display').innerText = `Mon - Thu: ${storeOpenHours.mon_thu.open}:00 - ${storeOpenHours.mon_thu.close}:00`;
+            document.getElementById('hours-fri-sat-display').innerText = `Fri - Sat: ${storeOpenHours.fri_sat.open}:00 - ${storeOpenHours.fri_sat.close}:00`;
+            document.getElementById('hours-sun-display').innerText = `Sun: ${storeOpenHours.sun.open}:00 - ${storeOpenHours.sun.close}:00`;
+            document.getElementById('home-banner-image').style.backgroundImage = `url('${homepageBannerUrl}')`;
+
+            updateOrderingAvailability();
+            showToast("Settings saved successfully!");
+        }
+
+        function setupBannerUpload() {
+            const dropZone = document.getElementById('banner-drop-zone');
+            const fileInput = document.getElementById('banner-file-input');
+            const preview = document.getElementById('banner-preview');
+
+            dropZone.onclick = () => fileInput.click();
+            fileInput.onchange = (e) => handleBannerFile(e.target.files[0]);
+
+            dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('dragover'); };
+            dropZone.ondragleave = () => { dropZone.classList.remove('dragover'); };
+            dropZone.ondrop = (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                handleBannerFile(e.dataTransfer.files[0]);
+            };
+
+            function handleBannerFile(file) {
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        homepageBannerUrl = e.target.result;
+                        preview.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
+
         function toggleOrderingSystem() {
             isOrderingManuallyDisabled = !isOrderingManuallyDisabled;
             updateOrderingAvailability();
@@ -1797,17 +1953,12 @@
             const hour = now.getHours();
             
             let isWithinHours = false;
-            // Sunday (13:00 - 21:00)
-            if (day === 0) {
-                isWithinHours = hour >= 13 && hour < 21;
-            } 
-            // Monday - Thursday (11:00 - 21:00)
-            else if (day >= 1 && day <= 4) {
-                isWithinHours = hour >= 11 && hour < 21;
-            }
-            // Friday - Saturday (11:00 - 22:00)
-            else if (day >= 5 && day <= 6) {
-                isWithinHours = hour >= 11 && hour < 22;
+            if (day === 0) { // Sunday
+                isWithinHours = hour >= storeOpenHours.sun.open && hour < storeOpenHours.sun.close;
+            } else if (day >= 1 && day <= 4) { // Monday - Thursday
+                isWithinHours = hour >= storeOpenHours.mon_thu.open && hour < storeOpenHours.mon_thu.close;
+            } else if (day >= 5 && day <= 6) { // Friday - Saturday
+                isWithinHours = hour >= storeOpenHours.fri_sat.open && hour < storeOpenHours.fri_sat.close;
             }
 
             isOrderingEnabled = isWithinHours && !isOrderingManuallyDisabled;
