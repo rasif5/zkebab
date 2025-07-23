@@ -1238,7 +1238,7 @@
             let selectedPrice = isMultiSize ? 0 : itemData.price;
             
             if (isMultiSize) {
-                const sizeSelect = document.getElementById(`size-select-${item.id}`);
+                const sizeSelect = document.getElementById(`size-select-${itemId}`);
                 selectedSize = sizeSelect.options[sizeSelect.selectedIndex].text;
                 selectedPrice = parseFloat(sizeSelect.value);
             }
